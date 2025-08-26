@@ -6,6 +6,7 @@ requirements
 ------------
 * ``flask[async]``
 * ``mysql-connector-python`` 9.4.0
+* ``python-dotenv`` 1.1.1
 
 installation
 ------------
