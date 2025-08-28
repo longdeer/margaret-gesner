@@ -52,6 +52,45 @@ def dbsetup(dbname, tname):
 				("testing_2","Тестовая таблица 2")
 			"""%tname
 		)
+		session.execute(
+			"""
+				CREATE TABLE testing_1 (
+					id INT NOT NULL AUTO_INCREMENT,
+					event_signal VARCHAR(255),
+					event_source VARCHAR(255),
+					event_target VARCHAR(255),
+					event_state VARCHAR(255),
+					PRIMARY KEY(id)
+				)
+			"""
+		)
+		session.execute(
+			"""
+				INSERT INTO testing_1 (event_signal, event_source, event_target, event_state) VALUES
+				("hello", "server", "client", "success"),
+				("check", "client", "server", "success"),
+				("fee", "server", "client", "fail")
+			"""
+		)
+		session.execute(
+			"""
+				CREATE TABLE testing_2 (
+					id INT NOT NULL AUTO_INCREMENT,
+					name VARCHAR(255),
+					account VARCHAR(255),
+					welth VARCHAR(255),
+					PRIMARY KEY(id)
+				)
+			"""
+		)
+		session.execute(
+			"""
+				INSERT INTO testing_2 (name, account, welth) VALUES
+				("carl", "545592393", "rich"),
+				("michel", "494585823", "poor"),
+				("dora", "884623722", "middle")
+			"""
+		)
 
 
 		connection.commit()
