@@ -3,10 +3,23 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Margaret Gesner Library</title>
+	<link rel="stylesheet" href="static/styles.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script type="text/javascript" src="static/table.js"></script>
 </head>
 <body>
-	<h1>I said, "Quiet"!</h1>
+	<div id="structure-table">
+		<table class="structure-table-menu">
+			{% for i in range(names | length) %}
+				<tr>
+					<td>
+						<button class="structure-table-menu-item">
+							{{ aliases[i] }}
+						</button>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
 </body>
 </html>

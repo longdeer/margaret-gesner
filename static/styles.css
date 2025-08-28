@@ -1,0 +1,17 @@
+#structure-table {
+	/*align-content: center;*/
+	/*margin: auto;*/
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 5px solid red;
+}
+.structure-table-menu {
+	border: 5px solid blue;
+	margin: 10px;
+}
+.structure-table-menu-item {
+	border: 5px solid green;
+	margin: 10px;
+	font: 2rem "Times New Roman", sans-serif;
+}
