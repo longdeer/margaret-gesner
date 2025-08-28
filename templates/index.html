@@ -8,12 +8,12 @@
 	<script type="text/javascript" src="static/table.js"></script>
 </head>
 <body>
-	<div id="structure-table">
+	<div class="structure-table">
 		<table class="structure-table-menu">
 			{% for i in range(names | length) %}
 				<tr>
 					<td>
-						<button class="structure-table-menu-item">
+						<button class="structure-table-menu-item" onclick="openTable(event,'{{ names[i] }}','{{ rsrc }}')">
 							{{ aliases[i] }}
 						</button>
 					</td>

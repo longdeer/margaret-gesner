@@ -6,6 +6,42 @@
 
 
 
+function openTable(event /* Event */, tableName /* String */, rsrc /* String */) {
+
+	console.log(`opening table ${tableName} for ${rsrc}`);
+	location.href = `table-${tableName}`
+}
+
+
+
+
+
+
+
+
+function sortToggle(event /* Event */, orderBy /* Number */, tabName /* String */) {
+
+	var nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
+	// var nextDescending = Boolean(nextState &2);
+	event.target.innerHTML = `&#${nextState}`;
+	// fetchTabData(tabName, orderBy, nextDescending);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function openTab(event /* Event */, tabName /* String */, orderBy /* Number */, descending /* Boolean */) {
 
 	Array.prototype.forEach.call(
@@ -74,21 +110,6 @@ function fetchTabData(tabName /* String */, orderBy /* Number */, descending /* 
 				updButton.onclick = updRow;
 			})
 		})
-}
-
-
-
-
-
-
-
-
-function sortToggle(event /* Event */, orderBy /* Number */, tabName /* String */) {
-
-	var nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
-	var nextDescending = Boolean(nextState &2);
-	event.target.innerHTML = `&#${nextState}`;
-	fetchTabData(tabName, orderBy, nextDescending);
 }
 
 

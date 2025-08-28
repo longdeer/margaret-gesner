@@ -1,4 +1,4 @@
-#structure-table {
+.structure-table {
 	/*align-content: center;*/
 	/*margin: auto;*/
 	display: flex;
@@ -14,4 +14,17 @@
 	border: 5px solid green;
 	margin: 10px;
 	font: 2rem "Times New Roman", sans-serif;
+}
+td.table-content-data {
+	text-align: center;
+	border: 2px solid black;
+	padding: 5px;
+}
+.table-content {
+	width: 100%;
+}
+.table-header-sort {
+	border: none;
+	background-color: white;
+	font-size: 25px;
 }
