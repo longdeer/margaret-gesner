@@ -6,6 +6,34 @@
 
 
 
+class MargaretTable
+function MargaretTable(tableContent, rsrc) {
+
+	this.tableContent = tableContent;
+	this.rsrc = rsrc;
+}
+MargaretTable.prototype.viewContent = function() {
+
+	console.log(this.tableContent);
+	const anchor = document.getElementsByClassName("structure-table")[0];
+	anchor.innerHTML = "LOL"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function openTable(event /* Event */, tableName /* String */, rsrc /* String */) {
 
 	console.log(`opening table ${tableName} for ${rsrc}`);

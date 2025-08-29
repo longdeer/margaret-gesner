@@ -77,8 +77,8 @@ async def get_table_content(table_name :str, rsrc :str, loggy) -> Tuple[Tuple[st
 
 
 		session.execute("SELECT * FROM %s"%table_name)
-		columns = tuple(map(itemgetter(0), session.description))
-		rows = tuple(map(tuple, session))
+		columns = list(map(itemgetter(0), session.description))
+		rows = list(map(list, session))
 		loggy.debug(f"queried {len(rows)} rows for {len(columns)} columns")
 		response = columns, rows
 
