@@ -1,37 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>{{ name }}</title>
-	<link rel="stylesheet" href="static/styles.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script type="text/javascript" src="static/table.js"></script>
-</head>
-<body>
-	<div class="structure-table">
-		<table class="table-content">
-			<tr>
-				{% for column in content[0] %}
-					<th>
-						{{ column }}
-						<button class="table-header-sort" onclick="sortToggle(event)">
-							&#11123
-						</button>
-					</th>
-				{% endfor %}
-			</tr>
-			{% for row in content[1] %}
+	<head>
+		<meta charset="UTF-8">
+		<title>{{ name }}</title>
+		<link rel="stylesheet" href="static/styles.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script type="text/javascript" src="static/table.js"></script>
+	</head>
+	<body onload="new MargaretTable('{{ name }}')">
+		<div class="structure-table">
+			<table class="table-content">
 				<tr>
-					{% for item in row %}
-						<td class="table-content-data">{{ item }}</td>
+					{% for i in range(content[0] | length) %}
+						<th>{{ content[0][i] }}</th>
 					{% endfor %}
 				</tr>
-			{% endfor %}
-		</table>
-	</div>
-	<!--script>
-		const table = MargaretTable({{ content | tojson }});
-		table.viewContent();
-	</script-->
-</body>
+				{% for row in content[1] %}
+					<tr>
+						{% for item in row %}
+							<td class="table-content-data">{{ item }}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</body>
 </html>

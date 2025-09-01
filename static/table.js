@@ -6,25 +6,71 @@
 
 
 
-class MargaretTable
-function MargaretTable(tableContent, rsrc) {
+class MargaretTable {
 
-	this.tableContent = tableContent;
-	this.rsrc = rsrc;
+	constructor(tableName /* String */) {
+
+		this.tableName = tableName;
+		this.table = document.getElementsByClassName("table-content")[0];
+		this.headers = this.constructHeaders();
+		this.order = new Array(this.headers.length).fill(0);
+		this.rows = this.constructRows();
+		console.log(this.headers);
+		console.log(this.rows);
+	}
+	sortToggle(event /* Event */, orderIndex /* Number */, tabName /* String */) {
+
+		// console.log(arguments)
+		let nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
+		let ascending = Boolean(nextState &2);
+
+		event.target.innerHTML = `&#${nextState}`;
+		this.order[orderIndex] ^= 1;
+
+		// this.
+		// fetchTabData(tabName, orderBy, nextDescending);
+	}
+	constructHeaders() {
+
+		let   header;
+		let   sortButton;
+		const headers = [];
+
+		for(let i = 0; i <this.table.rows[0].cells.length; ++i) {
+
+			sortButton = document.createElement("button");
+			sortButton.addEventListener("click", event => this.sortToggle(event, i));
+			sortButton.classList.add("table-header-sort");
+			sortButton.innerHTML = "&#11123";
+
+			header = this.table.rows[0].cells[i];
+			headers.push(header.innerText.trim());
+			header.append(sortButton)
+		}	return headers
+	}
+	constructRows() {
+
+		let   currentRow;
+		const rowsContent = [];
+
+		for(let i = 1; i <this.table.rows.length; ++i) {
+
+			currentRow = Array.prototype.map.call(this.table.rows[i].cells, E => E.innerText);
+			rowsContent.push(currentRow)
+		}	return rowsContent
+	}
 }
-MargaretTable.prototype.viewContent = function() {
+// function MargaretTable(tableContent, rsrc) {
 
-	console.log(this.tableContent);
-	const anchor = document.getElementsByClassName("structure-table")[0];
-	anchor.innerHTML = "LOL"
-}
+// 	this.tableContent = tableContent;
+// 	this.rsrc = rsrc;
+// }
+// MargaretTable.prototype.viewContent = function() {
 
-
-
-
-
-
-
+// 	console.log(this.tableContent);
+// 	const anchor = document.getElementsByClassName("structure-table")[0];
+// 	anchor.innerHTML = "LOL"
+// }
 
 
 
@@ -33,11 +79,16 @@ MargaretTable.prototype.viewContent = function() {
 
 
 
+function findTable() {
 
-function openTable(event /* Event */, tableName /* String */, rsrc /* String */) {
-
-	console.log(`opening table ${tableName} for ${rsrc}`);
-	location.href = `table-${tableName}`
+	let table = document.getElementsByClassName("table-content")[0];
+	return [
+		Array.prototype.map.call(table.rows[0].cells, E => E.firstChild.nodeValue.trim()),
+		Array.prototype.map.call(
+			Array.prototype.slice.call(table.rows,1),
+			row => Array.prototype.map.call(row.cells, E => E.innerText)
+		)
+	]
 }
 
 
@@ -49,11 +100,44 @@ function openTable(event /* Event */, tableName /* String */, rsrc /* String */)
 
 function sortToggle(event /* Event */, orderBy /* Number */, tabName /* String */) {
 
-	var nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
-	// var nextDescending = Boolean(nextState &2);
+	let nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
+	let ascending = Boolean(nextState &2);
+
 	event.target.innerHTML = `&#${nextState}`;
-	// fetchTabData(tabName, orderBy, nextDescending);
+
+	console.log(`orderBy = ${orderBy}, ascending = ${ascending}`);
+	let [ headers,rows ] = findTable();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function openTable(event /* Event */, tableName /* String */, alias /* String */, rsrc /* String */) {
+
+	console.log(`opening table ${tableName} for ${rsrc}`);
+	// document.title = alias;
+	location.href = `table-${tableName}`
+}
+
+
+
+
+
+
+
+
 
 
 
