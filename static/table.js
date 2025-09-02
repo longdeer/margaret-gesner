@@ -6,35 +6,26 @@
 
 
 
-class MargaretTable {
+class MargaretGrip {
 
 	constructor(tableName /* String */) {
 
 		this.tableName = tableName;
 		this.table = document.getElementsByClassName("table-content")[0];
+
+		this.columnsCount;
+		this.rowsCount;
+
 		this.headers = this.constructHeaders();
-		this.order = new Array(this.headers.length).fill(0);
 		this.rows = this.constructRows();
-		console.log(this.headers);
-		console.log(this.rows);
-	}
-	sortToggle(event /* Event */, orderIndex /* Number */, tabName /* String */) {
-
-		// console.log(arguments)
-		let nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
-		let ascending = Boolean(nextState &2);
-
-		event.target.innerHTML = `&#${nextState}`;
-		this.order[orderIndex] ^= 1;
-
-		// this.
-		// fetchTabData(tabName, orderBy, nextDescending);
 	}
 	constructHeaders() {
 
 		let   header;
 		let   sortButton;
 		const headers = [];
+
+		this.columnsCount = 0;
 
 		for(let i = 0; i <this.table.rows[0].cells.length; ++i) {
 
@@ -45,7 +36,10 @@ class MargaretTable {
 
 			header = this.table.rows[0].cells[i];
 			headers.push(header.innerText.trim());
-			header.append(sortButton)
+			header.append(sortButton);
+
+			++this.columnsCount;
+
 		}	return headers
 	}
 	constructRows() {
@@ -53,60 +47,51 @@ class MargaretTable {
 		let   currentRow;
 		const rowsContent = [];
 
+		this.rowsCount = 0;
+
 		for(let i = 1; i <this.table.rows.length; ++i) {
 
 			currentRow = Array.prototype.map.call(this.table.rows[i].cells, E => E.innerText);
-			rowsContent.push(currentRow)
+			rowsContent.push(currentRow);
+
+			++this.rowsCount
+
 		}	return rowsContent
 	}
-}
-// function MargaretTable(tableContent, rsrc) {
+	sortToggle(event /* Event */, orderIndex /* Number */, tabName /* String */) {
 
-// 	this.tableContent = tableContent;
-// 	this.rsrc = rsrc;
-// }
-// MargaretTable.prototype.viewContent = function() {
+		let nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
+		let ascending = Boolean(nextState &2);
 
-// 	console.log(this.tableContent);
-// 	const anchor = document.getElementsByClassName("structure-table")[0];
-// 	anchor.innerHTML = "LOL"
-// }
+		event.target.innerHTML = `&#${nextState}`;
 
+		this.rows.sort((r1,r2) => {
 
+			if(ascending) {
 
+				if(r1[orderIndex] <r2[orderIndex]) return -1;
+				if(r2[orderIndex] <r1[orderIndex]) return 1;
+				return 0
+			}
+			if(!ascending){
+				if(r1[orderIndex] <r2[orderIndex]) return 1;
+				if(r2[orderIndex] <r1[orderIndex]) return -1;
+				return 0
+			}
+		});
 
+		this.updateTable()
+	}
+	updateTable() {
 
+		let i;
+		let j;
 
+		for(i = 0; i <this.table.rows.length -1; ++i)
+			for(j = 0; j <this.columnsCount; ++j)
 
-
-function findTable() {
-
-	let table = document.getElementsByClassName("table-content")[0];
-	return [
-		Array.prototype.map.call(table.rows[0].cells, E => E.firstChild.nodeValue.trim()),
-		Array.prototype.map.call(
-			Array.prototype.slice.call(table.rows,1),
-			row => Array.prototype.map.call(row.cells, E => E.innerText)
-		)
-	]
-}
-
-
-
-
-
-
-
-
-function sortToggle(event /* Event */, orderBy /* Number */, tabName /* String */) {
-
-	let nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
-	let ascending = Boolean(nextState &2);
-
-	event.target.innerHTML = `&#${nextState}`;
-
-	console.log(`orderBy = ${orderBy}, ascending = ${ascending}`);
-	let [ headers,rows ] = findTable();
+				this.table.rows[i+1].cells[j].innerText = this.rows[i][j]
+	}
 }
 
 
@@ -126,18 +111,10 @@ function sortToggle(event /* Event */, orderBy /* Number */, tabName /* String *
 
 function openTable(event /* Event */, tableName /* String */, alias /* String */, rsrc /* String */) {
 
-	console.log(`opening table ${tableName} for ${rsrc}`);
+	// console.log(`opening table ${tableName} for ${rsrc}`);
 	// document.title = alias;
 	location.href = `table-${tableName}`
 }
-
-
-
-
-
-
-
-
 
 
 
