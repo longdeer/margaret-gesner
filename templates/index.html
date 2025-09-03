@@ -13,7 +13,7 @@
 				{% for i in range(names | length) %}
 					<tr>
 						<td>
-							<button class="structure-table-menu-item" onclick="openTable(event,'{{ names[i] }}','{{ aliases[i] }}','{{ rsrc }}')">
+							<button class="structure-table-menu-item" onclick="location.href='table-{{ names[i] }}-{{ serials[i] }}'">
 								{{ aliases[i] }}
 							</button>
 						</td>

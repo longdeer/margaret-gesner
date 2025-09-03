@@ -1,5 +1,7 @@
 from os					import getenv
 from ops				import in_access_list
+from ops				import serialize_alias
+from ops				import deserialize_alias
 from modules.logger		import Logger
 from modules.connector	import get_structure
 from modules.connector	import get_table_content
@@ -34,23 +36,25 @@ async def index():
 		tables = await get_structure(rsrc, loggy)
 		names = sorted(tables)
 		aliases = [ tables[name] for name in names ]
+		serials = list(map(serialize_alias,aliases))
 
-		return render_template("index.html", names=names, aliases=aliases, rsrc=rsrc)
+		return render_template("index.html", names=names, aliases=aliases, serials=serials, rsrc=rsrc)
 	return render_template("restricted.html")
 
 
 
 
-@app.route("/table-<name>")
-async def table(name :str) -> str :
+@app.route("/table-<name>-<serial>")
+async def table(name :str, serial :str) -> str :
 
 	if	in_access_list((rsrc := request.remote_addr), loggy):
 
 		# content will have structure:
 		# ( column names ),(( row1_col1, row1_col2, ... ),( row2_col1, row2_col2, ... ), ... )
 		content = await get_table_content(name, rsrc, loggy)
+		alias = deserialize_alias(serial)
 
-		return render_template("table.html", name=name, content=content)
+		return render_template("table.html", name=name, alias=alias, content=content)
 	return render_template("restricted.html")
 
 

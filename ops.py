@@ -16,6 +16,29 @@ def in_access_list(address :str, loggy) -> bool :
 
 
 
+def serialize_alias(alias :str) -> str :
+
+	"""
+		Converts table alias, which represents the viewable name and might be different languages,
+		to the url-compatibale utf-8 string, by taking hex value of every symbol.
+	"""
+
+	return str("_").join(map(lambda s : format(ord(s),"x"),alias))
+
+
+
+
+def deserialize_alias(serialized_alias :str) -> str :
+
+	"""
+		Converts serialized string value to viewable table alias.
+	"""
+
+	return str().join(map(lambda s : chr(int(s,16)),serialized_alias.split("_")))
+
+
+
+
 
 
 

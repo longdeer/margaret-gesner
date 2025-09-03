@@ -109,28 +109,6 @@ class MargaretGrip {
 
 
 
-function openTable(event /* Event */, tableName /* String */, alias /* String */, rsrc /* String */) {
-
-	// console.log(`opening table ${tableName} for ${rsrc}`);
-	// document.title = alias;
-	location.href = `table-${tableName}`
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function openTab(event /* Event */, tabName /* String */, orderBy /* Number */, descending /* Boolean */) {
 
 	Array.prototype.forEach.call(
