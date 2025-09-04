@@ -11,7 +11,9 @@ class MargaretGrip {
 	constructor(tableName /* String */) {
 
 		this.tableName = tableName;
-		this.table = document.getElementsByClassName("table-content")[0];
+		this.tableContent = document.getElementsByClassName("table-content")[0];
+		this.addingForm = document.getElementsByClassName("manage-form")[0];
+		this.addingForm.addEventListener("submit",event => this.addRow(event));
 
 		this.columnsCount;
 		this.rowsCount;
@@ -27,14 +29,14 @@ class MargaretGrip {
 
 		this.columnsCount = 0;
 
-		for(let i = 0; i <this.table.rows[0].cells.length; ++i) {
+		for(let i = 0; i <this.tableContent.rows[0].cells.length; ++i) {
 
 			sortButton = document.createElement("button");
 			sortButton.addEventListener("click", event => this.sortToggle(event, i));
 			sortButton.classList.add("table-header-sort");
 			sortButton.innerHTML = "&#11123";
 
-			header = this.table.rows[0].cells[i];
+			header = this.tableContent.rows[0].cells[i];
 			headers.push(header.innerText.trim());
 			header.append(sortButton);
 
@@ -49,9 +51,9 @@ class MargaretGrip {
 
 		this.rowsCount = 0;
 
-		for(let i = 1; i <this.table.rows.length; ++i) {
+		for(let i = 1; i <this.tableContent.rows.length; ++i) {
 
-			currentRow = Array.prototype.map.call(this.table.rows[i].cells, E => E.innerText);
+			currentRow = Array.prototype.map.call(this.tableContent.rows[i].cells, E => E.innerText);
 			rowsContent.push(currentRow);
 
 			++this.rowsCount
@@ -87,10 +89,53 @@ class MargaretGrip {
 		let i;
 		let j;
 
-		for(i = 0; i <this.table.rows.length -1; ++i)
+		for(i = 0; i <this.tableContent.rows.length -1; ++i)
 			for(j = 0; j <this.columnsCount; ++j)
 
-				this.table.rows[i+1].cells[j].innerText = this.rows[i][j]
+				this.tableContent.rows[i+1].cells[j].innerText = this.rows[i][j]
+	}
+	addRow(event /* Event */) {
+
+		event.preventDefault();
+		const query = {};
+
+		this.headers.forEach((header,i) => query[header] = event.target[i].value || null);
+
+		fetch(
+			`/add-row-${this.tableName}`,
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(query)
+			}
+		).then(response => {
+
+			switch (response.status) {
+
+				case 200:
+
+					this.headers.forEach((_,i) => event.target[i].value = "");
+
+					const newRow = this.tableContent.insertRow();
+					let   newCell;
+
+					this.rows.unshift(this.headers.map(header => {
+
+						newCell = newRow.insertCell();
+						newCell.appendChild(document.createTextNode(""));
+						newCell.className = "table-content-data";
+
+						return query[header]
+					}));
+
+					this.updateTable();
+					break;
+
+				case 500:	response.json().then(data => alert(data.reason)); break;
+				default:	break;
+			}
+
+		}).catch(E => alert(E))
 	}
 }
 

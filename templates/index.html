@@ -11,7 +11,7 @@
 		<div class="structure-table">
 			<table class="structure-table-menu">
 				{% for i in range(names | length) %}
-					<tr>
+					<tr class="structure-table-menu-row">
 						<td>
 							<button class="structure-table-menu-item" onclick="location.href='table-{{ names[i] }}-{{ serials[i] }}'">
 								{{ aliases[i] }}

@@ -1,3 +1,15 @@
+.manage-table {
+	/*align-content: center;*/
+	/*margin: auto;*/
+	/*display: flex;*/
+	/*justify-content: center;*/
+	/*align-items: center;*/
+	border: 5px solid red;
+	padding: 10px;
+}
+.table-adding-label {
+	padding-right: 5px;
+}
 .structure-table {
 	/*align-content: center;*/
 	/*margin: auto;*/
@@ -5,6 +17,7 @@
 	justify-content: center;
 	align-items: center;
 	border: 5px solid red;
+	padding: 10px;
 }
 .structure-table-menu {
 	border: 5px solid blue;
@@ -27,4 +40,14 @@ td.table-content-data {
 	border: none;
 	background-color: white;
 	font-size: 25px;
+}
+/*.table-adding {
+	width: 100%;
+}*/
+.table-input {
+	width: 100%;
+}
+.structure-table-menu-row {
+	display: flex;
+	justify-content: center;
 }

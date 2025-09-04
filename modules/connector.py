@@ -1,7 +1,8 @@
-from	os				import getenv
+import	json
 from	typing			import Dict
 from	typing			import Tuple
 from	operator		import itemgetter
+from	os				import getenv
 import	mysql.connector
 
 
@@ -99,7 +100,68 @@ async def get_table_content(table_name :str, rsrc :str, loggy) -> Tuple[Tuple[st
 
 async def create_table():		pass
 async def update_table():		pass
-async def add_table_row():		pass
+
+
+
+
+
+
+
+
+async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None | str :
+
+	try:
+
+		columns = list()
+		data = list()
+
+		for k,v in content.items():
+			if	v is not None:
+
+				columns.append(k)
+				data.append(f"'{v}'")
+
+
+		if	columns and data:
+
+			columns = ",".join(columns)
+			data = ",".join(data)
+
+
+			dbname = getenv("DB_NAME")
+			connection = mysql.connector.connect(
+
+				user=getenv("DB_USER_NAME"),
+				password=getenv("DB_USER_PASSWORD"),
+				host=getenv("DB_ADDRESS"),
+				database=dbname
+			)
+			session = connection.cursor()
+			loggy.debug(f"{dbname} connection established for {rsrc} in add_table_row")
+
+
+			session.execute("INSERT IGNORE INTO %s (%s) VALUES (%s)"%(table_name, columns, data))
+			loggy.info(f"{rsrc} inserted into {table_name} ({columns}) - ({data})")
+
+
+			connection.commit()
+			session.close()
+			connection.close()
+
+
+	except	mysql.connector.Error as E:
+
+		response = f"{E.__class__.__name__}: {E}"
+		loggy.error(response)
+		return response
+
+
+
+
+
+
+
+
 async def update_table_row():	pass
 async def delete_table_row():	pass
 async def add_table_content():	pass

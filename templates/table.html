@@ -8,17 +8,38 @@
 		<script type="text/javascript" src="static/table.js"></script>
 	</head>
 	<body onload="new MargaretGrip('{{ name }}')">
+		<div class="manage-table">
+			<form class="manage-form">
+				<table class="table-adding">
+					<colgroup>
+						<col style="width:auto;">
+						<col style="width:100%;">
+					</colgroup>
+					{% for i in range(content[0] | length) %}
+						<tr>
+							<td class="table-adding-label"><label for='{{ i }}'>{{ content[0][i] }}</label></td>
+							<td><input class="table-input" name='{{ i }}' type='text'></td>
+						</tr>
+					{% endfor %}
+				</table>
+				<input type="submit" name="submit" value="+">
+			</form>
+		</div>
 		<div class="structure-table">
 			<table class="table-content">
 				<tr>
-					{% for i in range(content[0] | length) %}
-						<th>{{ content[0][i] }}</th>
+					{% for column in content[0] %}
+						<th>{{ column }}</th>
 					{% endfor %}
 				</tr>
 				{% for row in content[1] %}
 					<tr>
 						{% for item in row %}
-							<td class="table-content-data">{{ item }}</td>
+							{% if item is not none %}
+								<td class="table-content-data">{{ item }}</td>
+							{% else %}
+								<td class="table-content-data"></td>
+							{% endif %}
 						{% endfor %}
 					</tr>
 				{% endfor %}
