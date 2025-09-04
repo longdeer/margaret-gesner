@@ -18,7 +18,12 @@ from dotenv				import load_dotenv
 
 
 load_dotenv()
-app = Flask(getenv("APP_NAME"))
+app = Flask(
+
+	getenv("APP_NAME"),
+	static_folder=getenv("APP_STATIC_FOLDER"),
+	template_folder=getenv("APP_TEMPLATES_FOLDER")
+)
 loggy = Logger(getenv("LOGGY_FILE"), getenv("APP_NAME"), getenv("LOGGY_LEVEL"))
 
 
