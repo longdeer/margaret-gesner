@@ -8,6 +8,7 @@ from	modules.connector	import get_structure
 from	modules.connector	import get_table_content
 from	modules.connector	import add_table_row
 from	modules.connector	import delete_table_row
+from	modules.connector	import update_table_row
 from	flask				import Flask
 from	flask				import request
 from	flask				import render_template
@@ -89,6 +90,21 @@ async def del_row(name :str) -> str :
 	if	in_access_list((rsrc := request.remote_addr), loggy):
 
 		match (db_response := await delete_table_row(name, request.get_json(), rsrc, loggy)):
+
+			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
+			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
+
+	return	json.dumps({ "success": False }), 403, { "ContentType": "application/json" }
+
+
+
+
+@app.route("/upd-row-<name>", methods=[ "UPDATE" ])
+async def upd_row(name :str) -> str :
+
+	if	in_access_list((rsrc := request.remote_addr), loggy):
+
+		match (db_response := await update_table_row(name, request.get_json(), rsrc, loggy)):
 
 			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
 			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }

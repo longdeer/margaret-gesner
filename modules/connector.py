@@ -142,7 +142,11 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 		loggy.debug(f"{dbname} connection established for {rsrc} in add_table_row")
 
 
-		session.execute("INSERT IGNORE INTO %s (%s) VALUES (%s)"%(table_name, columns, data))
+		dbquery = "INSERT IGNORE INTO %s (%s) VALUES (%s)"%(table_name, columns, data)
+		loggy.debug(f"{rsrc} query: {dbquery}")
+
+
+		session.execute(dbquery)
 		loggy.info(f"{rsrc} inserted into {table_name} ({columns}) - ({data})")
 
 
@@ -151,7 +155,7 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 		connection.close()
 
 
-	except	mysql.connector.Error as E:
+	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
 		loggy.error(response)
@@ -182,8 +186,7 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 			raise ValueError("Empty or inconsistent table data")
 
 
-		# condition = [ f"{c}={d}" for c,d in zip(columns,data) ]
-		condition = " AND ".join( f"{c}={d}" for c,d in zip(columns,data) )
+		condition = " AND ".join( f"{c}={d}" for c,d in zip(columns, data) )
 
 
 		dbname = getenv("DB_NAME")
@@ -198,7 +201,13 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 		loggy.debug(f"{dbname} connection established for {rsrc} in delete_table_row")
 
 
-		session.execute("DELETE FROM %s WHERE %s"%(table_name, condition))
+		# As there might be duplicate rows in DB,
+		# setting LIMIT 1 to only delete the single row
+		dbquery = "DELETE FROM %s WHERE %s LIMIT 1"%(table_name, condition)
+		loggy.debug(f"{rsrc} query: {dbquery}")
+
+
+		session.execute(dbquery)
 		loggy.info(f"{rsrc} deleted from {table_name} row where {condition}")
 
 
@@ -207,7 +216,7 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 		connection.close()
 
 
-	except	mysql.connector.Error as E:
+	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
 		loggy.error(response)
@@ -220,7 +229,72 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 
 
 
-async def update_table_row():	pass
+async def update_table_row(table_name :str, content :str, rsrc :str, loggy):
+
+	try:
+
+		origin_columns = list()
+		update_columns = list()
+		origin_data = list()
+		update_data = list()
+
+		for k,v in content["origin"].items():
+
+			origin_columns.append(k)
+			origin_data.append(f"='{v}'" if v is not None else " IS NULL")
+
+		for k,v in content["update"].items():
+
+			update_columns.append(k)
+			update_data.append(f"'{v}'" if v is not None else "NULL")
+
+
+		if(
+			not origin_columns or not origin_data or
+			not update_columns or not update_data or
+			len(origin_columns) != len(update_columns) or
+			len(origin_data) != len(update_data) or
+			all( data == "NULL" for data in update_data )
+
+		):	raise ValueError("Empty or inconsistent table data")
+
+
+		setter = ",".join( f"{c}={d}" for c,d in zip(update_columns, update_data) )
+		condition = " AND ".join( f"{c}{d}" for c,d in zip(origin_columns, origin_data) )
+
+
+		dbname = getenv("DB_NAME")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in update_table_row")
+
+
+		# As there might be duplicate rows in DB,
+		# setting LIMIT 1 to only update the single row
+		dbquery = "UPDATE %s SET %s WHERE %s LIMIT 1"%(table_name, setter, condition)
+		loggy.debug(f"{rsrc} query: {dbquery}")
+
+
+		session.execute(dbquery)
+		loggy.info(f"{rsrc} updated {table_name} with {setter}")
+
+
+		connection.commit()
+		session.close()
+		connection.close()
+
+
+	except	Exception as E:
+
+		response = f"{E.__class__.__name__}: {E}"
+		loggy.error(response)
+		return response
 
 
 
