@@ -122,31 +122,89 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 				data.append(f"'{v}'")
 
 
-		if	columns and data:
-
-			columns = ",".join(columns)
-			data = ",".join(data)
+		if	not columns or not data or len(columns) != len(data):
+			raise ValueError("Empty or inconsistent table data")
 
 
-			dbname = getenv("DB_NAME")
-			connection = mysql.connector.connect(
-
-				user=getenv("DB_USER_NAME"),
-				password=getenv("DB_USER_PASSWORD"),
-				host=getenv("DB_ADDRESS"),
-				database=dbname
-			)
-			session = connection.cursor()
-			loggy.debug(f"{dbname} connection established for {rsrc} in add_table_row")
+		columns = ",".join(columns)
+		data = ",".join(data)
 
 
-			session.execute("INSERT IGNORE INTO %s (%s) VALUES (%s)"%(table_name, columns, data))
-			loggy.info(f"{rsrc} inserted into {table_name} ({columns}) - ({data})")
+		dbname = getenv("DB_NAME")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in add_table_row")
 
 
-			connection.commit()
-			session.close()
-			connection.close()
+		session.execute("INSERT IGNORE INTO %s (%s) VALUES (%s)"%(table_name, columns, data))
+		loggy.info(f"{rsrc} inserted into {table_name} ({columns}) - ({data})")
+
+
+		connection.commit()
+		session.close()
+		connection.close()
+
+
+	except	mysql.connector.Error as E:
+
+		response = f"{E.__class__.__name__}: {E}"
+		loggy.error(response)
+		return response
+
+
+
+
+
+
+
+
+async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
+
+	try:
+
+		columns = list()
+		data = list()
+
+		for k,v in content.items():
+			if	v is not None:
+
+				columns.append(k)
+				data.append(f"'{v}'")
+
+
+		if	not columns or not data or len(columns) != len(data):
+			raise ValueError("Empty or inconsistent table data")
+
+
+		# condition = [ f"{c}={d}" for c,d in zip(columns,data) ]
+		condition = " AND ".join( f"{c}={d}" for c,d in zip(columns,data) )
+
+
+		dbname = getenv("DB_NAME")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in delete_table_row")
+
+
+		session.execute("DELETE FROM %s WHERE %s"%(table_name, condition))
+		loggy.info(f"{rsrc} deleted from {table_name} row where {condition}")
+
+
+		connection.commit()
+		session.close()
+		connection.close()
 
 
 	except	mysql.connector.Error as E:
@@ -163,7 +221,14 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 
 
 async def update_table_row():	pass
-async def delete_table_row():	pass
+
+
+
+
+
+
+
+
 async def add_table_content():	pass
 
 

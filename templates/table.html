@@ -28,12 +28,19 @@
 		<div class="structure-table">
 			<table class="table-content">
 				<tr>
+					<th></th><th></th>
 					{% for column in content[0] %}
 						<th>{{ column }}</th>
 					{% endfor %}
 				</tr>
 				{% for row in content[1] %}
 					<tr>
+						<td class="table-content-edit">
+							<button class="delete-button">X</button>
+						</td>
+						<td class="table-content-edit">
+							<button class="update-button">»</button>
+						</td>
 						{% for item in row %}
 							{% if item is not none %}
 								<td class="table-content-data">{{ item }}</td>

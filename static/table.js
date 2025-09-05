@@ -29,10 +29,10 @@ class MargaretGrip {
 
 		this.columnsCount = 0;
 
-		for(let i = 0; i <this.tableContent.rows[0].cells.length; ++i) {
+		for(let i = 2; i <this.tableContent.rows[0].cells.length; ++i) {
 
 			sortButton = document.createElement("button");
-			sortButton.addEventListener("click", event => this.sortToggle(event, i));
+			sortButton.addEventListener("click", event => this.sortToggle(event,i -2));
 			sortButton.classList.add("table-header-sort");
 			sortButton.innerHTML = "&#11123";
 
@@ -46,24 +46,29 @@ class MargaretGrip {
 	}
 	constructRows() {
 
+		let   i;
+		let   j;
 		let   currentRow;
 		const rowsContent = [];
 
 		this.rowsCount = 0;
 
-		for(let i = 1; i <this.tableContent.rows.length; ++i) {
+		for(i = 1; i <this.tableContent.rows.length; ++i) {
 
-			currentRow = Array.prototype.map.call(this.tableContent.rows[i].cells, E => E.innerText);
+			currentRow = [];
+			this.tableContent.rows[i].cells[0].getElementsByClassName("delete-button")[0].addEventListener("click",event => this.deleteRow(event));
+			this.tableContent.rows[i].cells[1].getElementsByClassName("update-button")[0].addEventListener("click",event => this.updateRow(event));
+			for(j = 0; j <this.columnsCount; ++j) currentRow.push(this.tableContent.rows[i].cells[j+2].innerText);
+
 			rowsContent.push(currentRow);
-
 			++this.rowsCount
 
 		}	return rowsContent
 	}
 	sortToggle(event /* Event */, orderIndex /* Number */, tabName /* String */) {
 
-		let nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
-		let ascending = Boolean(nextState &2);
+		const nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
+		const ascending = Boolean(nextState &2);
 
 		event.target.innerHTML = `&#${nextState}`;
 
@@ -92,7 +97,7 @@ class MargaretGrip {
 		for(i = 0; i <this.tableContent.rows.length -1; ++i)
 			for(j = 0; j <this.columnsCount; ++j)
 
-				this.tableContent.rows[i+1].cells[j].innerText = this.rows[i][j]
+				this.tableContent.rows[i+1].cells[j+2].innerText = this.rows[i][j]
 	}
 	addRow(event /* Event */) {
 
@@ -100,6 +105,7 @@ class MargaretGrip {
 		const query = {};
 
 		this.headers.forEach((header,i) => query[header] = event.target[i].value || null);
+		if(!confirm(`Add row ${JSON.stringify(query)} to ${this.tableName}?`)) return;
 
 		fetch(
 			`/add-row-${this.tableName}`,
@@ -110,14 +116,24 @@ class MargaretGrip {
 			}
 		).then(response => {
 
-			switch (response.status) {
+			switch(response.status) {
 
 				case 200:
 
 					this.headers.forEach((_,i) => event.target[i].value = "");
 
-					const newRow = this.tableContent.insertRow();
 					let   newCell;
+					const newRow = this.tableContent.insertRow();
+
+					const delButton = newRow.insertCell().appendChild(document.createElement("button"));
+					delButton.className = "delete-button";
+					delButton.addEventListener("click",event => this.deleteRow(event));
+					delButton.innerText = "X";
+
+					const updButton = newRow.insertCell().appendChild(document.createElement("button"));
+					updButton.className = "update-button-button";
+					updButton.addEventListener("click",event => this.updateRow(event));
+					updButton.innerText = "»";
 
 					this.rows.unshift(this.headers.map(header => {
 
@@ -136,6 +152,59 @@ class MargaretGrip {
 			}
 
 		}).catch(E => alert(E))
+	}
+	deleteRow(event /* Event */) {
+
+		event.preventDefault();
+		const currentRow = event.target.parentNode.parentNode;
+		const rowToDelete = Array.prototype.slice.call(currentRow.cells,2);
+		const viewRow = this.headers.map((_,i) => rowToDelete[i].innerText);
+		const query = {};
+
+		this.headers.forEach((header,i) => query[header] = viewRow[i] || null);
+		if(!confirm(`Delete row ${JSON.stringify(query)} from ${this.tableName}?`)) return;
+
+		fetch(
+			`/del-row-${this.tableName}`,
+			{
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(query)
+			}
+		).then(response => {
+
+			switch(response.status) {
+
+				case 200:
+
+					this.tableContent.deleteRow(Array.prototype.indexOf.call(this.tableContent.rows,currentRow));
+					this.rows.splice(this.findRow(viewRow),1);
+					this.updateTable();
+					break;
+
+				case 500:	response.json().then(data => alert(data.reason)); break;
+				default:	break;
+			}
+
+		}).catch(E => alert(E))
+	}
+	updateRow(event /* Event */) {
+
+		event.preventDefault();
+		console.log(this);
+		console.log(event.target.parentNode.parentNode)
+	}
+	findRow(content /* [ String, ] */) {
+
+		let i;
+		let j;
+
+		outer: for(i = 0; i <this.rowsCount; ++i) {
+			for(j = 0; j <this.columnsCount; ++j)
+
+				if(this.rows[i][j] !== content[j]) continue outer;
+				return  i
+		}		return -1;
 	}
 }
 
