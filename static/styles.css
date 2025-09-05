@@ -1,23 +1,14 @@
 .manage-table {
-	/*align-content: center;*/
-	/*margin: auto;*/
-	/*display: flex;*/
-	/*justify-content: center;*/
-	/*align-items: center;*/
-	border: 5px solid red;
-	padding: 10px;
+	padding: 10px 10px 0px 10px;
 }
 .table-adding-label {
 	padding-right: 5px;
 }
 .structure-table {
-	/*align-content: center;*/
-	/*margin: auto;*/
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	border: 5px solid red;
-	padding: 10px;
+	padding: 0px 10px 10px 10px;
 }
 .structure-table-menu {
 	border: 5px solid blue;
@@ -35,8 +26,6 @@ td.table-content-data {
 }
 td.table-content-edit {
 	text-align: center;
-	/*border: 2px solid black;*/
-	/*padding: 5px;*/
 	width: 10px;
 }
 .table-content {
@@ -47,13 +36,17 @@ td.table-content-edit {
 	background-color: white;
 	font-size: 25px;
 }
-/*.table-adding {
-	width: 100%;
-}*/
+.table-adding {
+	padding-bottom: 10px;
+}
 .table-input {
 	width: 100%;
 }
 .structure-table-menu-row {
 	display: flex;
 	justify-content: center;
+}
+.navigation {
+	display: flex;
+	padding: 10px;
 }
