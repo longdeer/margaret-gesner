@@ -53,6 +53,24 @@ async def index():
 
 
 
+@app.route("/add-table")
+def add_table():
+
+	if	in_access_list((rsrc := request.remote_addr), loggy):
+		return render_template(
+
+			"creator.html",
+			NEW_TABLE_ALIAS=getenv("NEW_TABLE_ALIAS"),
+			RADIO_TEXT=getenv("RADIO_TEXT"),
+			RADIO_DATE=getenv("RADIO_DATE"),
+			RADIO_NUMBER=getenv("RADIO_NUMBER"),
+			RAW_PLACEHOLDER=getenv("RAW_PLACEHOLDER")
+		)
+	return render_template("restricted.html")
+
+
+
+
 @app.route("/table-<name>-<serial>")
 async def table(name :str, serial :str) -> str :
 

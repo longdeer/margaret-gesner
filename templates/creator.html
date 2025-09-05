@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Margaret Gesner Creator</title>
+		<link rel="stylesheet" href="static/styles.css">
+		<script type="text/javascript" src="static/creator.js"></script>
+	</head>
+	<body onload="new MargaretGrip();">
+		<div class="navigation">
+			<button class="structure-link" onclick="location.href='/'"><<</button>
+		</div>
+		<div class="adding-table-menu">
+			<form class="adding-from">
+				<table class="creator-table">
+					<colgroup>
+						<col style="width:10%">
+						<col style="width:1%">
+						<col style="width:89%;">
+					</colgroup>
+					<tr>
+						<td><label for="new-table-alias">{{ NEW_TABLE_ALIAS }}</label></td>
+						<td><button class="clear-button">X</button></td>
+						<td><input type="text" name="new-table-alias" class="table-input"></td>
+					</tr>
+					<tr>
+						<td>
+							<input type="radio" id="row-text-1" name="row-type" value="1" checked>
+							<label for="row-text-1">{{ RADIO_TEXT }}</label>
+							<input type="radio" id="row-date-1" name="row-type" value="2">
+							<label for="row-date-1">{{ RADIO_DATE }}</label>
+							<input type="radio" id="row-number-1" name="row-type" value="3">
+							<label for="row-number-1">{{ RADIO_NUMBER }}</label>
+						</td>
+						<td><button class="delete-button">X</button></td>
+						<td><input type="text" name="new-table-row" class="table-input" placeholder="{{ RAW_PLACEHOLDER }}"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><button class="new-row-button">+</button></td>
+						<td></td>
+					</tr>
+				</table>
+				<input type="submit" name="submit" value="V">
+			</form>
+		</div>
+	</body>
+</html>

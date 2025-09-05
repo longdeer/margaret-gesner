@@ -15,9 +15,13 @@
 	margin: 10px;
 }
 .structure-table-menu-item {
+	background-color: white;
 	border: 5px solid green;
 	margin: 10px;
 	font: 2rem "Times New Roman", sans-serif;
+}
+.structure-table-menu-item:hover {
+	background-color: #E8E7E3;
 }
 td.table-content-data {
 	text-align: center;
@@ -49,4 +53,10 @@ td.table-content-edit {
 .navigation {
 	display: flex;
 	padding: 10px;
+}
+.adding-table-menu {
+	padding: 0px 10px 10px 10px;
+}
+.creator-table {
+	width: 100%;
 }
