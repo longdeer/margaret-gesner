@@ -15,18 +15,21 @@ class MargaretGrip {
 		this.creatorTable = this.newTableForm.getElementsByClassName("creator-table")[0];
 
 
-		this.creatorTable.rows[0].getElementsByClassName("clear-button")[0].addEventListener("click",event => this.clearInput(event));
+		this.creatorTable.rows[0].getElementsByClassName("clear-button")[0].addEventListener("click",event => this.clearTableName(event));
 		this.creatorTable.getElementsByClassName("new-row-button")[0].addEventListener("click",event => this.addRow(event));
 		this.newTableForm.elements["submit"].addEventListener("click",event => this.createTable(event));
 
-		this.columns = 0;
+		this.columnsCount = 0;
+		this.columns = [];
 		this.rows = [];
 
 		Array.prototype.slice.call(this.creatorTable.rows,1,-1).forEach(row => {
 
 			row.getElementsByClassName("delete-button")[0].addEventListener("click",event => this.deleteRow(event));
-			this.rows.push(row.getElementsByClassName("table-input")[0]);
-			++this.columns;
+			this.columns.push(row.getElementsByClassName("table-input")[0]);
+			this.rows.push(row);
+
+			++this.columnsCount
 		});
 		this.radioIdRegex = /row-(text|date|number)-(\d+)/;
 		this.radioNameRegex = /row-(\d+)-type/;
@@ -34,29 +37,81 @@ class MargaretGrip {
 	createTable(event /* Event */) {
 
 		event.preventDefault();
-		// const query = { table: this.newTableForm[0].value, columns: []};
-		const query = { table: this.tableName.value, columns: []};
 
-		// this.rows.forEach((_,i) => query.columns.push(this.newTableForm[i+1].value));
-		this.rows.forEach(row => query.columns.push(row.value));
-		console.log(query);
+		if(this.tableName.value === "") {
 
-		this.clearForm()
-	}
-	constructName() {
-	}
-	constructRows() {
-	}
-	updateTable() {
+			alert("Table name not provided!");
+			return
+		}
+		if(!this.columnsCount) {
+
+			alert("Table columns not provided");
+			return
+		}
+		const query = { table: this.tableName.value, columns: {}};
+		const columnIndecies = {};
+		const emptyColumns = [];
+		const invalid = new Set();
+		let   columnName;
+		let   columnRadio;
+
+		this.rows.forEach((row,i) => {
+
+			columnName = this.columns[i].value;
+
+			if(columnName !== "") {
+				if(!(columnName in columnIndecies)) columnIndecies[columnName] = new Set();
+
+				columnRadio = row.querySelector(`input:checked`).value;
+
+				switch(columnRadio) {
+
+					case "2": if(Number.isNaN(parseInt(columnName))) invalid.add(i); break;
+					case "1": if(new Date(columnName).toString() === "Invalid Date") invalid.add(i); break;
+				}
+				query.columns[columnName] = row.querySelector(`input:checked`).value;
+				columnIndecies[columnName].add(i);
+			}	else emptyColumns.push(i);
+		});
+
+		Object.values(columnIndecies).forEach(indecies => {
+
+			if(1 <indecies.size) indecies.forEach(i => invalid.add(i))
+		});	emptyColumns.forEach(i => invalid.add(i));
+
+		if(invalid.size) {
+
+			alert("Invalid column names are found!");
+			invalid.forEach(i => this.markInvalid(this.columns[i]));
+			return
+		}	if(!confirm(`Create table ${this.tableName.value}?`)) return;
+
+		fetch(
+			"/new-table",
+			{
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(query)
+			}
+		).then(response => {
+
+			switch(response.status) {
+
+				case 200:	location.href = "/"; break;
+				case 500:	response.json().then(data => alert(data.reason)); break;
+				default:	break;
+			}
+
+		}).catch(E => alert(E))
 	}
 	addRow(event /* Event */) {
 
 		event.preventDefault();
 
-		const lastRow = this.creatorTable.rows[this.columns];
+		const lastRow = this.creatorTable.rows[this.columnsCount];
+		const newRow = this.creatorTable.insertRow(++this.columnsCount);
 		const inputs = lastRow.getElementsByTagName("input");
 		const labels = lastRow.getElementsByTagName("label")
-		const newRow = this.creatorTable.insertRow(++this.columns);
 		const typesRadio = newRow.insertCell();
 		const delRow = newRow.insertCell();
 		const rowData = newRow.insertCell();
@@ -108,32 +163,46 @@ class MargaretGrip {
 		rowInput.className = "table-input";
 		rowInput.placeholder = inputs[3].placeholder;
 
-		this.rows.push(rowInput);
+		this.columns.push(rowInput);
+		this.rows.push(newRow);
 	}
 	deleteRow(event /* Event */) {
 
 		event.preventDefault();
-		console.log(event.target.parentNode.parentNode)
+
+		if(1 <this.columnsCount) {
+
+			const targetRow = event.target.parentNode.parentNode;
+			this.creatorTable.deleteRow(Array.prototype.indexOf.call(this.creatorTable.rows, targetRow));
+			this.columns.splice(this.columns.indexOf(targetRow.getElementsByClassName("table-input")[0]), 1);
+			this.rows.splice(this.rows.indexOf(targetRow), 1);
+			--this.columnsCount;
+		}
 	}
-	findRow(content /* [ String, ] */) {
-	}
-	clearInput(event /* Event */) {
+	clearTableName(event /* Event */) {
 
 		event.preventDefault();
-		console.log(event.target.parentNode.parentNode);
-		event.target.parentNode.parentNode.getElementsByClassName("table-input")[0].value = ""
+		this.tableName.value = ""
 	}
 	clearForm(event /* Event */) {
 
 		if(event) event.preventDefault();
 		this.tableName.value = "";
-		this.rows.forEach(row => row.value = "")
+		this.columns.forEach(row => row.value = "")
 	}
 	newRadioId(match, p1, p2) {
 		return `row-${p1}-${parseInt(p2)+1}`
 	}
 	newRadioName(match, p1) {
 		return `row-${parseInt(p1)+1}-type`
+	}
+	markInvalid(column) {
+
+		column.style.backgroundColor = "rgb(255,0,0)";
+		setTimeout(() => {
+
+			if(column) column.style.backgroundColor = "rgb(255,255,255)"
+		},	5000)
 	}
 }
 
