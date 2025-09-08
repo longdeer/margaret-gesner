@@ -6,6 +6,7 @@ from	ops					import deserialize_alias
 from	modules.logger		import Logger
 from	modules.connector	import get_structure
 from	modules.connector	import get_table_content
+from	modules.connector	import create_table
 from	modules.connector	import add_table_row
 from	modules.connector	import delete_table_row
 from	modules.connector	import update_table_row
@@ -53,13 +54,13 @@ async def index():
 
 
 
-@app.route("/add-table")
-def add_table():
+@app.route("/table-constructor")
+def table_constructor():
 
 	if	in_access_list((rsrc := request.remote_addr), loggy):
 		return render_template(
 
-			"creator.html",
+			"constructor.html",
 			NEW_TABLE_ALIAS=getenv("NEW_TABLE_ALIAS"),
 			RADIO_TEXT=getenv("RADIO_TEXT"),
 			RADIO_DATE=getenv("RADIO_DATE"),
@@ -83,6 +84,21 @@ async def table(name :str, serial :str) -> str :
 
 		return render_template("table.html", name=name, alias=alias, content=content)
 	return render_template("restricted.html")
+
+
+
+
+@app.route("/new-table", methods=[ "POST" ])
+async def new_table() -> str :
+
+	if	in_access_list((rsrc := request.remote_addr), loggy):
+
+		match (db_response := await create_table(request.get_json(), rsrc, loggy)):
+
+			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
+			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
+
+	return	json.dumps({ "success": False }), 403, { "ContentType": "application/json" }
 
 
 

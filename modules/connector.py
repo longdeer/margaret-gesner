@@ -2,8 +2,18 @@ import	json
 from	typing			import Dict
 from	typing			import Tuple
 from	operator		import itemgetter
+from	datetime		import datetime
 from	os				import getenv
 import	mysql.connector
+
+
+
+
+
+
+
+
+COLUMN_TYPE = [ "VARCHAR(255)", "DATE", "INT" ]
 
 
 
@@ -98,7 +108,74 @@ async def get_table_content(table_name :str, rsrc :str, loggy) -> Tuple[Tuple[st
 
 
 
-async def create_table():		pass
+async def create_table(content :str, rsrc :str, loggy) -> None | str :
+
+	try:
+
+		column_names = list()
+		column_types = list()
+		table_alias = f"""'{content["table"]}'"""
+
+
+		for k,v in content["columns"].items():
+
+			column_names.append(k.replace(" ","_"))
+			column_types.append(COLUMN_TYPE[int(v)])
+
+
+		if	not column_names or not column_types or len(column_names) != len(column_types):
+			raise ValueError("Empty or inconsistent table data")
+
+
+		table_name = f"table{datetime.now().timestamp()}".replace(".","D")
+		columns = ",".join( f"{name} {T}" for name,T in zip(column_names, column_types))
+
+
+		dbname = getenv("DB_NAME")
+		dbstructure = getenv("DB_STRUCTURE_TABLE")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in create_table")
+
+
+		dbquery1 = "CREATE TABLE %s (%s)"%(table_name, columns)
+		dbquery2 = "INSERT INTO %s (name,alias) VALUES ('%s',%s)"%(dbstructure, table_name, table_alias)
+
+
+		loggy.debug(f"{rsrc} query1: {dbquery1}")
+		session.execute(dbquery1)
+		loggy.info(f"{rsrc} created {table_name} ({columns})")
+
+
+		loggy.debug(f"{rsrc} query2: {dbquery2}")
+		session.execute(dbquery2)
+		loggy.info(f"{rsrc} updated {dbstructure} with ('{table_name}',{table_alias})")
+
+
+		connection.commit()
+		session.close()
+		connection.close()
+
+
+	except	Exception as E:
+
+		response = f"{E.__class__.__name__}: {E}"
+		loggy.error(response)
+		return response
+
+
+
+
+
+
+
+
 async def update_table():		pass
 
 
@@ -114,6 +191,7 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 
 		columns = list()
 		data = list()
+
 
 		for k,v in content.items():
 			if	v is not None:
@@ -174,6 +252,7 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 
 		columns = list()
 		data = list()
+
 
 		for k,v in content.items():
 			if	v is not None:
@@ -238,10 +317,12 @@ async def update_table_row(table_name :str, content :str, rsrc :str, loggy):
 		origin_data = list()
 		update_data = list()
 
+
 		for k,v in content["origin"].items():
 
 			origin_columns.append(k)
 			origin_data.append(f"='{v}'" if v is not None else " IS NULL")
+
 
 		for k,v in content["update"].items():
 

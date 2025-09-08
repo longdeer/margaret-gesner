@@ -63,12 +63,6 @@ class MargaretGrip {
 				if(!(columnName in columnIndecies)) columnIndecies[columnName] = new Set();
 
 				columnRadio = row.querySelector(`input:checked`).value;
-
-				switch(columnRadio) {
-
-					case "2": if(Number.isNaN(parseInt(columnName))) invalid.add(i); break;
-					case "1": if(new Date(columnName).toString() === "Invalid Date") invalid.add(i); break;
-				}
 				query.columns[columnName] = row.querySelector(`input:checked`).value;
 				columnIndecies[columnName].add(i);
 			}	else emptyColumns.push(i);
