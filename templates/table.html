@@ -34,11 +34,11 @@
 			<table class="table-content">
 				<tr>
 					<th></th><th></th>
-					{% for column in content[0] %}
-						<th>{{ column }}</th>
+					{% for i in range(content[0] | length) %}
+						<th class="type-code-{{ content[1][i] }}">{{ content[0][i] }}</th>
 					{% endfor %}
 				</tr>
-				{% for row in content[1] %}
+				{% for row in content[2] %}
 					<tr>
 						<td class="table-content-edit">
 							<button class="delete-button">X</button>

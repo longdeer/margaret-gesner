@@ -79,8 +79,8 @@ async def table(name :str, serial :str) -> str :
 
 		# content will have structure:
 		# ( column names ),(( row1_col1, row1_col2, ... ),( row2_col1, row2_col2, ... ), ... )
-		content = await get_table_content(name, rsrc, loggy)
 		alias = deserialize_alias(serial)
+		content = await get_table_content(name, alias, rsrc, loggy)
 
 		return render_template("table.html", name=name, alias=alias, content=content)
 	return render_template("restricted.html")

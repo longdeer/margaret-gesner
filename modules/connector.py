@@ -13,7 +13,11 @@ import	mysql.connector
 
 
 
-COLUMN_TYPE = [ "VARCHAR(255)", "DATE", "INT" ]
+# The following data types and corresponding type codes are implemented:
+# 253	- VARCHAR(255);
+# 10	- DATE;
+# 8		- BIGINT.
+COLUMN_TYPE = [ "VARCHAR(255)", "DATE", "BIGINT" ]
 
 
 
@@ -63,10 +67,15 @@ async def get_structure(rsrc :str, loggy) -> Dict[str,str] :
 
 
 
-async def get_table_content(table_name :str, rsrc :str, loggy) -> Tuple[Tuple[str,],Tuple[Tuple[str,],]] :
+async def get_table_content(table_name		:str,
+							table_alias:	str,
+							rsrc			:str,
+							loggy
+						)->	Tuple[Tuple[str,],Tuple[int,],Tuple[Tuple[str,],]] :
 
 	"""
 		table_name	- requested table name string;
+		table_alias	- requested table alias string;
 		rsrc		- request's ip address as string;
 		loggy		- Logger object (logging wrapper).
 	"""
@@ -87,11 +96,26 @@ async def get_table_content(table_name :str, rsrc :str, loggy) -> Tuple[Tuple[st
 		loggy.debug(f"{dbname} connection established for {rsrc} in get_table_content")
 
 
-		session.execute("SELECT * FROM %s"%table_name)
-		columns = list(map(itemgetter(0), session.description))
+		dbquery = "SELECT * FROM %s"%table_name
+
+
+		loggy.debug(f"{rsrc} query: {dbquery}")
+		session.execute(dbquery)
+
+
 		rows = list(map(list, session))
-		loggy.debug(f"queried {len(rows)} rows for {len(columns)} columns")
-		response = columns, rows
+		type_codes = list()
+		columns = list()
+
+
+		for name,T,*_ in session.description:
+
+			columns.append(name)
+			type_codes.append(T)
+
+
+		loggy.info(f"queried {len(rows)} rows for {len(columns)} columns")
+		response = columns, type_codes, rows
 
 
 		session.close()
@@ -220,7 +244,7 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 		loggy.debug(f"{dbname} connection established for {rsrc} in add_table_row")
 
 
-		dbquery = "INSERT IGNORE INTO %s (%s) VALUES (%s)"%(table_name, columns, data)
+		dbquery = "INSERT INTO %s (%s) VALUES (%s)"%(table_name, columns, data)
 		loggy.debug(f"{rsrc} query: {dbquery}")
 
 

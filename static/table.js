@@ -22,8 +22,12 @@ class MargaretGrip {
 		this.columnsCount;
 		this.rowsCount;
 
-		this.headers = this.constructHeaders();
-		this.rows = this.constructRows();
+		this.headers = [];
+		this.types = [];
+		this.rows = [];
+
+		this.constructHeaders();
+		this.constructRows();
 	}
 	constructHeaders() {
 
@@ -41,19 +45,20 @@ class MargaretGrip {
 			sortButton.innerHTML = "&#11123";
 
 			header = this.tableContent.rows[0].cells[i];
-			headers.push(header.innerText.trim());
+
+			this.headers.push(header.innerText.trim());
+			this.types.push(header.className.split("-")[2]);
+
 			header.append(sortButton);
 
 			++this.columnsCount;
-
-		}	return headers
+		}
 	}
 	constructRows() {
 
 		let   i;
 		let   j;
 		let   currentRow;
-		const rowsContent = [];
 
 		this.rowsCount = 0;
 
@@ -64,33 +69,52 @@ class MargaretGrip {
 			this.tableContent.rows[i].cells[1].getElementsByClassName("update-button")[0].addEventListener("click",event => this.editRow(event));
 			for(j = 0; j <this.columnsCount; ++j) currentRow.push(this.tableContent.rows[i].cells[j+2].innerText);
 
-			rowsContent.push(currentRow);
+			this.rows.push(currentRow);
 			++this.rowsCount
 
-		}	return rowsContent
+		}
 	}
 	sortToggle(event /* Event */, orderIndex /* Number */, tabName /* String */) {
 
 		const nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
 		const ascending = Boolean(nextState &2);
-
-		event.target.innerHTML = `&#${nextState}`;
+		const typeCode = this.types[orderIndex];
+		let   r1n;
+		let   r2n;
 
 		this.rows.sort((r1,r2) => {
 
 			if(ascending) {
+				if(typeCode === "8") {
 
-				if(r1[orderIndex] <r2[orderIndex]) return -1;
-				if(r2[orderIndex] <r1[orderIndex]) return 1;
-				return 0
+					r1n = BigInt(r1[orderIndex]);
+					r2n = BigInt(r2[orderIndex]);
+					return r1n <r2n ? -1 : r2n <r1n ? 1 : 0
+
+				}	else {
+
+					if(r1[orderIndex] <r2[orderIndex]) return -1;
+					if(r2[orderIndex] <r1[orderIndex]) return 1;
+					return 0
+				}
 			}
 			if(!ascending){
-				if(r1[orderIndex] <r2[orderIndex]) return 1;
-				if(r2[orderIndex] <r1[orderIndex]) return -1;
-				return 0
+				if(typeCode === "8") {
+
+					r1n = BigInt(r1[orderIndex]);
+					r2n = BigInt(r2[orderIndex]);
+					return r1n <r2n ? 1 : r2n <r1n ? -1 : 0
+
+				}	else {
+
+					if(r1[orderIndex] <r2[orderIndex]) return 1;
+					if(r2[orderIndex] <r1[orderIndex]) return -1;
+					return 0
+				}
 			}
 		});
 
+		event.target.innerHTML = `&#${nextState}`;
 		this.updateTable()
 	}
 	updateTable() {
