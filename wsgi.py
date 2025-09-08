@@ -48,8 +48,45 @@ async def index():
 		aliases = [ tables[name] for name in names ]
 		serials = list(map(serialize_alias,aliases))
 
-		return render_template("index.html", names=names, aliases=aliases, serials=serials, rsrc=rsrc)
-	return render_template("restricted.html")
+		return render_template(
+
+			"index.html",
+			names=names,
+			aliases=aliases,
+			serials=serials,
+			rsrc=rsrc,
+			ITEM_DELETE_TITLE=getenv("ITEM_DELETE_TITLE"),
+			ITEM_EDIT_TITLE=getenv("ITEM_EDIT_TITLE"),
+			ITEM_NEW_TABLE_TITLE=getenv("ITEM_NEW_TABLE_TITLE"),
+			ITEM_OPEN_TABLE_TITLE=getenv("ITEM_OPEN_TABLE_TITLE")
+		)
+	return	render_template("restricted.html")
+
+
+
+
+@app.route("/locale-titles")
+def get_locale_titles() -> str :
+
+	if	in_access_list((rsrc := request.remote_addr), loggy):
+		return json.dumps({
+
+			"ITEM_DELETE_TITLE": getenv("ITEM_DELETE_TITLE"),
+			"ITEM_EDIT_TITLE": getenv("ITEM_EDIT_TITLE"),
+			"ITEM_NEW_TABLE_TITLE": getenv("ITEM_NEW_TABLE_TITLE"),
+			"ITEM_OPEN_TABLE_TITLE": getenv("ITEM_OPEN_TABLE_TITLE"),
+			"ITEM_BACK_TO_STRUCTURE_TITLE": getenv("ITEM_BACK_TO_STRUCTURE_TITLE"),
+			"ITEM_SUBMIT_NEW_ROW_TITLE": getenv("ITEM_SUBMIT_NEW_ROW_TITLE"),
+			"ITEM_CANCEL_EDIT_TITLE": getenv("ITEM_CANCEL_EDIT_TITLE"),
+			"ITEM_SUBMIT_ROW_UPDATE_TITLE": getenv("ITEM_SUBMIT_ROW_UPDATE_TITLE"),
+			"ITEM_DELETE_ROW_TITLE": getenv("ITEM_DELETE_ROW_TITLE"),
+			"ITEM_EDIT_ROW_TITLE": getenv("ITEM_EDIT_ROW_TITLE"),
+			"ITEM_DELETE_COLUMN_TITLE": getenv("ITEM_DELETE_COLUMN_TITLE"),
+			"ITEM_NEW_TABLE_COLUMN_TITLE": getenv("ITEM_NEW_TABLE_COLUMN_TITLE"),
+			"ITEM_SUBMIT_NEW_TABLE_TITLE": getenv("ITEM_SUBMIT_NEW_TABLE_TITLE"),
+			"ITEM_SORTING_TOGGLE_TITLE": getenv("ITEM_SORTING_TOGGLE_TITLE")
+		})
+	return	render_template("restricted.html")
 
 
 
@@ -65,9 +102,14 @@ def table_constructor():
 			RADIO_TEXT=getenv("RADIO_TEXT"),
 			RADIO_DATE=getenv("RADIO_DATE"),
 			RADIO_NUMBER=getenv("RADIO_NUMBER"),
-			RAW_PLACEHOLDER=getenv("RAW_PLACEHOLDER")
+			RAW_PLACEHOLDER=getenv("RAW_PLACEHOLDER"),
+			ITEM_BACK_TO_STRUCTURE_TITLE=getenv("ITEM_BACK_TO_STRUCTURE_TITLE"),
+			ITEM_CANCEL_EDIT_TITLE=getenv("ITEM_CANCEL_EDIT_TITLE"),
+			ITEM_DELETE_COLUMN_TITLE=getenv("ITEM_DELETE_COLUMN_TITLE"),
+			ITEM_NEW_TABLE_COLUMN_TITLE=getenv("ITEM_NEW_TABLE_COLUMN_TITLE"),
+			ITEM_SUBMIT_NEW_TABLE_TITLE=getenv("ITEM_SUBMIT_NEW_TABLE_TITLE")
 		)
-	return render_template("restricted.html")
+	return	render_template("restricted.html")
 
 
 
@@ -82,8 +124,21 @@ async def table(name :str, serial :str) -> str :
 		alias = deserialize_alias(serial)
 		content = await get_table_content(name, alias, rsrc, loggy)
 
-		return render_template("table.html", name=name, alias=alias, content=content)
-	return render_template("restricted.html")
+		return render_template(
+
+			"table.html",
+			name=name,
+			alias=alias,
+			content=content,
+			ITEM_BACK_TO_STRUCTURE_TITLE=getenv("ITEM_BACK_TO_STRUCTURE_TITLE"),
+			ITEM_SUBMIT_NEW_ROW_TITLE=getenv("ITEM_SUBMIT_NEW_ROW_TITLE"),
+			ITEM_CANCEL_EDIT_TITLE=getenv("ITEM_CANCEL_EDIT_TITLE"),
+			ITEM_SUBMIT_ROW_UPDATE_TITLE=getenv("ITEM_SUBMIT_ROW_UPDATE_TITLE"),
+			ITEM_DELETE_ROW_TITLE=getenv("ITEM_DELETE_ROW_TITLE"),
+			ITEM_EDIT_ROW_TITLE=getenv("ITEM_EDIT_ROW_TITLE"),
+			ITEM_SORTING_TOGGLE_TITLE=getenv("ITEM_SORTING_TOGGLE_TITLE")
+		)
+	return	render_template("restricted.html")
 
 
 

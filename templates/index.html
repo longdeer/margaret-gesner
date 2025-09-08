@@ -5,7 +5,6 @@
 		<title>Margaret Gesner Library</title>
 		<link rel="stylesheet" href="static/styles.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script type="text/javascript" src="static/table.js"></script>
 	</head>
 	<body>
 		<div class="structure-table">
@@ -13,7 +12,13 @@
 				{% for i in range(names | length) %}
 					<tr class="structure-table-menu-row">
 						<td>
-							<button class="structure-table-menu-item" onclick="location.href='table-{{ names[i] }}-{{ serials[i] }}'">
+							<button class="structure-table-menu-item" title="{{ ITEM_DELETE_TITLE }}">X</button>
+						</td>
+						<td>
+							<button class="structure-table-menu-item" title="{{ ITEM_EDIT_TITLE }}">>></button>
+						</td>
+						<td>
+							<button class="structure-table-menu-item" title="{{ ITEM_OPEN_TABLE_TITLE }}" onclick="location.href='table-{{ names[i] }}-{{ serials[i] }}'">
 								{{ aliases[i] }}
 							</button>
 						</td>
@@ -21,7 +26,7 @@
 				{% endfor %}
 				<tr class="structure-table-menu-row">
 					<td>
-						<button class="structure-table-menu-item" onclick="location.href='table-constructor'">+</button>
+						<button class="structure-table-menu-item" title="{{ ITEM_NEW_TABLE_TITLE }}" onclick="location.href='table-constructor'">+</button>
 					</td>
 				</tr>
 			</table>

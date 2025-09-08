@@ -9,7 +9,7 @@
 	</head>
 	<body onload="new MargaretGrip('{{ name }}');">
 		<div class="navigation">
-			<button class="structure-link" onclick="location.href='/'"><<</button>
+			<button class="structure-link" title="{{ ITEM_BACK_TO_STRUCTURE_TITLE }}" onclick="location.href='/'"><<</button>
 		</div>
 		<div class="manage-table">
 			<form class="manage-form">
@@ -25,9 +25,9 @@
 						</tr>
 					{% endfor %}
 				</table>
-				<input type="submit" name="submit" value="+">
-				<input type="submit" name="cancel" value="X">
-				<input type="submit" name="update" value="V">
+				<input type="submit" name="submit" value="+" title="{{ ITEM_SUBMIT_NEW_ROW_TITLE }}">
+				<input type="submit" name="cancel" value="X" title="{{ ITEM_CANCEL_EDIT_TITLE }}">
+				<input type="submit" name="update" value="V" title="{{ ITEM_SUBMIT_ROW_UPDATE_TITLE }}">
 			</form>
 		</div>
 		<div class="structure-table">
@@ -35,16 +35,19 @@
 				<tr>
 					<th></th><th></th>
 					{% for i in range(content[0] | length) %}
-						<th class="type-code-{{ content[1][i] }}">{{ content[0][i] }}</th>
+						<th class="type-code-{{ content[1][i] }}">
+						{{ content[0][i] }}
+						<button class="table-header-sort" title="{{ ITEM_SORTING_TOGGLE_TITLE }}">&#11123</button>
+					</th>
 					{% endfor %}
 				</tr>
 				{% for row in content[2] %}
 					<tr>
 						<td class="table-content-edit">
-							<button class="delete-button">X</button>
+							<button class="delete-button" title="{{ ITEM_DELETE_ROW_TITLE }}">X</button>
 						</td>
 						<td class="table-content-edit">
-							<button class="update-button">»</button>
+							<button class="update-button" title="{{ ITEM_EDIT_ROW_TITLE }}">»</button>
 						</td>
 						{% for item in row %}
 							{% if item is not none %}

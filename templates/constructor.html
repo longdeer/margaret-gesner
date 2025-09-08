@@ -9,7 +9,7 @@
 	</head>
 	<body onload="new MargaretGrip();">
 		<div class="navigation">
-			<button class="structure-link" onclick="location.href='/'"><<</button>
+			<button class="structure-link" title="{{ ITEM_BACK_TO_STRUCTURE_TITLE }}" onclick="location.href='/'"><<</button>
 		</div>
 		<div class="adding-table-menu">
 			<form class="adding-form">
@@ -21,7 +21,7 @@
 					</colgroup>
 					<tr>
 						<td><label for="new-table-alias">{{ NEW_TABLE_ALIAS }}</label></td>
-						<td><button class="clear-button">X</button></td>
+						<td><button class="clear-button" title="{{ ITEM_CANCEL_EDIT_TITLE }}">X</button></td>
 						<td><input type="text" name="new-table-alias" class="table-input"></td>
 					</tr>
 					<tr>
@@ -33,16 +33,16 @@
 							<input type="radio" id="row-number-1" name="row-1-type" value="2">
 							<label for="row-number-1">{{ RADIO_NUMBER }}</label>
 						</td>
-						<td><button class="delete-button">X</button></td>
+						<td><button class="delete-button" title="{{ ITEM_DELETE_COLUMN_TITLE }}">X</button></td>
 						<td><input type="text" name="new-table-row" class="table-input" placeholder="{{ RAW_PLACEHOLDER }}"></td>
 					</tr>
 					<tr>
 						<td></td>
-						<td><button class="new-row-button">+</button></td>
+						<td><button class="new-row-button" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}">+</button></td>
 						<td></td>
 					</tr>
 				</table>
-				<input type="submit" name="submit" value="V">
+				<input type="submit" name="submit" title="{{ ITEM_SUBMIT_NEW_TABLE_TITLE }}" value="V">
 			</form>
 		</div>
 	</body>

@@ -93,7 +93,7 @@ class MargaretGrip {
 
 				case 200:	location.href = "/"; break;
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	break;
+				default:	alert(`Unhandled status ${response.status}`);
 			}
 
 		}).catch(E => alert(E))

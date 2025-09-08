@@ -22,10 +22,30 @@ class MargaretGrip {
 		this.columnsCount;
 		this.rowsCount;
 
+		// Deafult titles
+		this.localTitles = {
+
+			ITEM_DELETE_TITLE: "Delete",
+			ITEM_EDIT_TITLE: "Edit",
+			ITEM_NEW_TABLE_TITLE: "New table",
+			ITEM_OPEN_TABLE_TITLE: "Open table",
+			ITEM_BACK_TO_STRUCTURE_TITLE: "Back to tables",
+			ITEM_SUBMIT_NEW_ROW_TITLE: "Submit new row",
+			ITEM_CANCEL_EDIT_TITLE: "Clear",
+			ITEM_SUBMIT_ROW_UPDATE_TITLE: "Submit row update",
+			ITEM_DELETE_ROW_TITLE: "Delete row",
+			ITEM_EDIT_ROW_TITLE: "Edit row",
+			ITEM_DELETE_COLUMN_TITLE: "Delete column",
+			ITEM_NEW_TABLE_COLUMN_TITLE: "New column",
+			ITEM_SUBMIT_NEW_TABLE_TITLE: "Submit new table",
+			ITEM_SORTING_TOGGLE_TITLE: "Sort"
+		};
+
 		this.headers = [];
 		this.types = [];
 		this.rows = [];
 
+		// this.gripTable()
 		this.constructHeaders();
 		this.constructRows();
 	}
@@ -39,17 +59,13 @@ class MargaretGrip {
 
 		for(let i = 2; i <this.tableContent.rows[0].cells.length; ++i) {
 
-			sortButton = document.createElement("button");
-			sortButton.addEventListener("click", event => this.sortToggle(event,i -2));
-			sortButton.classList.add("table-header-sort");
-			sortButton.innerHTML = "&#11123";
-
 			header = this.tableContent.rows[0].cells[i];
 
-			this.headers.push(header.innerText.trim());
+			// Adding to header haeder name without sorting button
+			this.headers.push(header.innerText.trim().slice(0,-1));
 			this.types.push(header.className.split("-")[2]);
 
-			header.append(sortButton);
+			header.getElementsByClassName("table-header-sort")[0].addEventListener("click", event => this.sortToggle(event,i -2));
 
 			++this.columnsCount;
 		}
@@ -156,11 +172,13 @@ class MargaretGrip {
 					const delButton = newRow.insertCell().appendChild(document.createElement("button"));
 					delButton.className = "delete-button";
 					delButton.addEventListener("click",event => this.deleteRow(event));
+					delButton.title = this.localTitles.ITEM_DELETE_ROW_TITLE;
 					delButton.innerText = "X";
 
 					const updButton = newRow.insertCell().appendChild(document.createElement("button"));
 					updButton.className = "update-button-button";
 					updButton.addEventListener("click",event => this.editRow(event));
+					updButton.title = this.localTitles.ITEM_EDIT_ROW_TITLE;
 					updButton.innerText = "»";
 
 					this.rows.unshift(this.headers.map(header => {
@@ -176,7 +194,7 @@ class MargaretGrip {
 					break;
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	break;
+				default:	alert(`Unhandled status ${response.status}`);
 			}
 
 		}).catch(E => alert(E))
@@ -215,7 +233,7 @@ class MargaretGrip {
 					break;
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	break;
+				default:	alert(`Unhandled status ${response.status}`);
 			}
 
 		}).catch(E => alert(E))
@@ -276,7 +294,7 @@ class MargaretGrip {
 						break;
 
 					case 500:	response.json().then(data => alert(data.reason)); break;
-					default:	break;
+					default:	alert(`Unhandled status ${response.status}`);
 				}	this.originRow = null
 
 			}).catch(E => alert(E))
