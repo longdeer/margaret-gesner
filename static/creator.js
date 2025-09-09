@@ -48,7 +48,8 @@ class MargaretGrip {
 			alert("Table columns not provided");
 			return
 		}
-		const query = { table: this.tableName.value, columns: {}};
+		const newTableName = this.tableName.value.trim().split(" ").filter(Boolean).join(" ");
+		const query = { table: newTableName, columns: {}};
 		const columnIndecies = {};
 		const emptyColumns = [];
 		const invalid = new Set();
@@ -57,7 +58,7 @@ class MargaretGrip {
 
 		this.rows.forEach((row,i) => {
 
-			columnName = this.columns[i].value;
+			columnName = this.columns[i].value.trim().split(" ").filter(Boolean).join(" ");
 
 			if(columnName !== "") {
 				if(!(columnName in columnIndecies)) columnIndecies[columnName] = new Set();
@@ -78,7 +79,7 @@ class MargaretGrip {
 			alert("Invalid column names are found!");
 			invalid.forEach(i => this.markInvalid(this.columns[i]));
 			return
-		}	if(!confirm(`Create table ${this.tableName.value}?`)) return;
+		}	if(!confirm(`Create table ${newTableName}?`)) return;
 
 		fetch(
 			"/new-table",

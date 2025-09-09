@@ -15,9 +15,6 @@ class MargaretGrip {
 		this.tableContent = document.getElementsByClassName("table-content")[0];
 
 		this.manageForm = document.getElementsByClassName("manage-form")[0];
-		this.manageForm.elements["submit"].addEventListener("click",event => this.addRow(event));
-		this.manageForm.elements["cancel"].addEventListener("click",event => this.clearForm(event));
-		this.manageForm.elements["update"].addEventListener("click",event => this.updateRow(event));
 
 		this.columnsCount;
 		this.rowsCount;
@@ -40,6 +37,8 @@ class MargaretGrip {
 			ITEM_SUBMIT_NEW_TABLE_TITLE: "Submit new table",
 			ITEM_SORTING_TOGGLE_TITLE: "Sort"
 		};
+		this.numberTypeKeys = "0123456789";
+		this.dateTypeKeys = "-0123456789";
 
 		this.headers = [];
 		this.types = [];
@@ -48,6 +47,7 @@ class MargaretGrip {
 		// this.gripTable()
 		this.constructHeaders();
 		this.constructRows();
+		this.formHandler();
 	}
 	constructHeaders() {
 
@@ -89,6 +89,27 @@ class MargaretGrip {
 			++this.rowsCount
 
 		}
+	}
+	formHandler() {
+
+		this.manageForm.elements["submit"].addEventListener("click",event => this.addRow(event));
+		this.manageForm.elements["cancel"].addEventListener("click",event => this.clearForm(event));
+		this.manageForm.elements["update"].addEventListener("click",event => this.updateRow(event));
+
+		this.types.forEach((T,i) => {
+			switch(T) {
+				case "10": this.manageForm[i].addEventListener("input", event => {
+
+					if(event.inputType === "insertText" && !this.dateTypeKeys.includes(event.data))
+						event.target.value = event.target.value.slice(0,-1)
+				});	break;
+
+				case "8": this.manageForm[i].addEventListener("input", event => {
+					if(event.inputType === "insertText" && !this.numberTypeKeys.includes(event.data))
+						event.target.value = event.target.value.slice(0,-1)
+				});	break;
+			}
+		})
 	}
 	sortToggle(event /* Event */, orderIndex /* Number */, tabName /* String */) {
 
@@ -147,8 +168,15 @@ class MargaretGrip {
 
 		event.preventDefault();
 		const query = {};
+		let   rowData;
 
-		this.headers.forEach((header,i) => query[header] = this.manageForm[i].value || null);
+		this.headers.forEach((header,i) => {
+
+			rowData = this.manageForm[i].value || null;
+			if(typeof(rowData) === "string") rowData = rowData.trim().split(" ").filter(Boolean).join(" ");
+			query[header] = rowData
+		});
+
 		if(!confirm(`Add row ${JSON.stringify(query)} to ${this.tableName}?`)) return;
 
 		fetch(
@@ -164,7 +192,7 @@ class MargaretGrip {
 
 				case 200:
 
-					this.headers.forEach((_,i) => this.manageForm[i].value = "");
+					this.clearForm();
 
 					let   newCell;
 					const newRow = this.tableContent.insertRow();
@@ -187,7 +215,7 @@ class MargaretGrip {
 						newCell.appendChild(document.createTextNode(""));
 						newCell.className = "table-content-data";
 
-						return query[header]
+						return query[header] || ""
 					}));
 
 					this.updateTable();
@@ -202,6 +230,7 @@ class MargaretGrip {
 	deleteRow(event /* Event */) {
 
 		event.preventDefault();
+
 		const currentRow = event.target.parentNode.parentNode;
 		const rowToDelete = Array.prototype.slice.call(currentRow.cells,2);
 		const viewRow = [];
@@ -227,10 +256,15 @@ class MargaretGrip {
 
 				case 200:
 
-					this.tableContent.deleteRow(Array.prototype.indexOf.call(this.tableContent.rows,currentRow));
-					this.rows.splice(this.findRow(viewRow),1);
-					this.updateTable();
-					break;
+					const viewRowToDelete = this.findRow(viewRow)
+
+					if(viewRowToDelete === -1) alert("Failed to update view, reload page")
+					else {
+
+						this.tableContent.deleteRow(Array.prototype.indexOf.call(this.tableContent.rows,currentRow));
+						this.rows.splice(this.findRow(viewRow),1);
+						this.updateTable();
+					}	break;
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
 				default:	alert(`Unhandled status ${response.status}`);
@@ -310,8 +344,8 @@ class MargaretGrip {
 
 				if(this.rows[i][j] !== content[j]) continue outer;
 
-				return  i
-		}		return -1
+			return  i
+		}	return -1
 	}
 	clearForm(event /* Event */) {
 
