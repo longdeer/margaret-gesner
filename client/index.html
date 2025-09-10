@@ -13,7 +13,7 @@
 				{% for i in range(names | length) %}
 					<tr class="structure-table-menu-row">
 						<td>
-							<button class="structure-table-menu-item" title="{{ ITEM_DELETE_TITLE }}">X</button>
+							<button class="structure-table-menu-item" title="{{ ITEM_DELETE_TITLE }}" onclick="MargaretGrip.structureDeleteTable(event, '{{ names[i] }}')">X</button>
 						</td>
 						<td>
 							<button class="structure-table-menu-item" title="{{ ITEM_EDIT_TITLE }}">>></button>

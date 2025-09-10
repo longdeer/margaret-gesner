@@ -146,7 +146,7 @@ class MargaretGrip {
 			}
 		})
 	}
-	tableSortColumn(event /* Event */, orderIndex /* Number */, tabName /* String */) {
+	tableSortColumn(event /* Event */, orderIndex /* Number */) {
 
 		const nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
 		const ascending = Boolean(nextState &2);
@@ -565,6 +565,35 @@ class MargaretGrip {
 
 			if(column) column.style.backgroundColor = "rgb(255,255,255)"
 		},	5000)
+	}
+	static structureDeleteTable(event /* Event */, tableName /* String */) {
+
+		event.preventDefault();
+
+
+		const structureRow = event.target.parentNode.parentNode;
+		const tableAlias = structureRow.getElementsByClassName("structure-table-menu-item")[2].innerText.trim();
+
+
+		if(!confirm(`Delete table ${tableAlias}?`)) return;
+
+
+		fetch(
+			`/del-table`,
+			{
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ tableName, tableAlias })
+			})
+		.then(response => {
+
+			switch(response.status) {
+
+				case 200:	location.reload(); break;
+				case 500:	response.json().then(data => alert(data.reason)); break;
+				default:	alert(`Unhandled status ${response.status}`); break;
+			}})
+		.catch(E => alert(E))
 	}
 }
 

@@ -200,6 +200,73 @@ async def create_table(content :str, rsrc :str, loggy) -> None | str :
 
 
 
+async def delete_table(content :str, rsrc :str, loggy) -> None | str :
+
+	try:
+
+		table_name = content.get("tableName")
+		table_alias = content.get("tableAlias")
+
+
+		# for k,v in content["columns"].items():
+
+		# 	column_names.append(k.replace("-","_").replace(" ","_"))
+		# 	column_types.append(COLUMN_TYPE[int(v)])
+
+
+		# if	not column_names or not column_types or len(column_names) != len(column_types):
+		# 	raise ValueError("Empty or inconsistent table data")
+
+
+		# table_name = f"TABLE{datetime.now().timestamp()}".replace(".","D")
+		# columns = ",".join( f"{name} {T}" for name,T in zip(column_names, column_types))
+
+
+		dbname = getenv("DB_NAME")
+		dbstructure = getenv("DB_STRUCTURE_TABLE")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in delete_table")
+
+
+		dbquery1 = "DROP TABLE %s"%table_name
+		dbquery2 = "DELETE FROM %s WHERE name='%s' AND alias='%s' LIMIT 1"%(dbstructure, table_name, table_alias)
+
+
+		loggy.debug(f"{rsrc} query1: {dbquery1}")
+		session.execute(dbquery1)
+		loggy.info(f"{rsrc} dropped {table_name}")
+
+
+		loggy.debug(f"{rsrc} query2: {dbquery2}")
+		session.execute(dbquery2)
+		loggy.info(f"{rsrc} updated {dbstructure} removed ('{table_name}',{table_alias})")
+
+
+		connection.commit()
+		session.close()
+		connection.close()
+
+
+	except	Exception as E:
+
+		response = f"{E.__class__.__name__}: {E}"
+		loggy.error(response)
+		return response
+
+
+
+
+
+
+
+
 async def update_table():		pass
 
 
