@@ -4,16 +4,16 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Margaret Gesner Creator</title>
-		<link rel="stylesheet" href="static/styles.css">
-		<script type="text/javascript" src="static/creator.js"></script>
+		<link rel="stylesheet" href="client/styles.css">
+		<script type="text/javascript" src="client/margaret.js"></script>
 	</head>
 	<body onload="new MargaretGrip();">
 		<div class="navigation">
 			<button class="structure-link" title="{{ ITEM_BACK_TO_STRUCTURE_TITLE }}" onclick="location.href='/'"><<</button>
 		</div>
-		<div class="adding-table-menu">
-			<form class="adding-form">
-				<table class="creator-table">
+		<div class="builder-menu">
+			<form class="builder-form">
+				<table class="builder-table">
 					<colgroup>
 						<col style="width:10%">
 						<col style="width:1%">
@@ -38,7 +38,7 @@
 					</tr>
 					<tr>
 						<td></td>
-						<td><button class="new-row-button" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}">+</button></td>
+						<td><button class="new-column-button" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}">+</button></td>
 						<td></td>
 					</tr>
 				</table>

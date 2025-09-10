@@ -143,7 +143,7 @@ async def create_table(content :str, rsrc :str, loggy) -> None | str :
 
 		for k,v in content["columns"].items():
 
-			column_names.append(k.replace(" ","_"))
+			column_names.append(k.replace("-","_").replace(" ","_"))
 			column_types.append(COLUMN_TYPE[int(v)])
 
 
@@ -151,7 +151,7 @@ async def create_table(content :str, rsrc :str, loggy) -> None | str :
 			raise ValueError("Empty or inconsistent table data")
 
 
-		table_name = f"table{datetime.now().timestamp()}".replace(".","D")
+		table_name = f"TABLE{datetime.now().timestamp()}".replace(".","D")
 		columns = ",".join( f"{name} {T}" for name,T in zip(column_names, column_types))
 
 

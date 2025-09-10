@@ -2,9 +2,10 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
-		<title>Margaret Gesner Library</title>
-		<link rel="stylesheet" href="static/styles.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Margaret Gesner Library</title>
+		<link rel="stylesheet" href="client/styles.css">
+		<script type="text/javascript" src="client/margaret.js"></script>
 	</head>
 	<body>
 		<div class="structure-table">
@@ -26,7 +27,7 @@
 				{% endfor %}
 				<tr class="structure-table-menu-row">
 					<td>
-						<button class="structure-table-menu-item" title="{{ ITEM_NEW_TABLE_TITLE }}" onclick="location.href='table-constructor'">+</button>
+						<button class="structure-table-menu-item" title="{{ ITEM_NEW_TABLE_TITLE }}" onclick="location.href='table-builder'">+</button>
 					</td>
 				</tr>
 			</table>

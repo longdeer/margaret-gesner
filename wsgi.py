@@ -91,13 +91,13 @@ def get_locale_titles() -> str :
 
 
 
-@app.route("/table-constructor")
+@app.route("/table-builder")
 def table_constructor():
 
 	if	in_access_list((rsrc := request.remote_addr), loggy):
 		return render_template(
 
-			"constructor.html",
+			"builder.html",
 			NEW_TABLE_ALIAS=getenv("NEW_TABLE_ALIAS"),
 			RADIO_TEXT=getenv("RADIO_TEXT"),
 			RADIO_DATE=getenv("RADIO_DATE"),

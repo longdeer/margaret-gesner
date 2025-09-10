@@ -54,9 +54,9 @@ td.table-content-edit {
 	display: flex;
 	padding: 10px;
 }
-.adding-table-menu {
+.builder-menu {
 	padding: 0px 10px 10px 10px;
 }
-.creator-table {
+.builder-table {
 	width: 100%;
 }
