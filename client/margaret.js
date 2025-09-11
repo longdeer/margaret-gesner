@@ -10,6 +10,46 @@ class MargaretGrip {
 
 	constructor(tableName /* String */) {
 
+		// Deafult titles
+		this.localeTitles = {
+
+			ITEM_DELETE_TITLE: "Delete",
+			ITEM_EDIT_TITLE: "Edit",
+			ITEM_NEW_TABLE_TITLE: "New table",
+			ITEM_OPEN_TABLE_TITLE: "Open table",
+			ITEM_BACK_TO_STRUCTURE_TITLE: "Back to tables",
+			ITEM_SUBMIT_NEW_ROW_TITLE: "Submit new row",
+			ITEM_CANCEL_EDIT_TITLE: "Clear",
+			ITEM_SUBMIT_ROW_UPDATE_TITLE: "Submit row update",
+			ITEM_DELETE_ROW_TITLE: "Delete row",
+			ITEM_EDIT_ROW_TITLE: "Edit row",
+			ITEM_DELETE_COLUMN_TITLE: "Delete column",
+			ITEM_NEW_TABLE_COLUMN_TITLE: "New column",
+			ITEM_SUBMIT_NEW_TABLE_TITLE: "Submit new table",
+			ITEM_SORTING_TOGGLE_TITLE: "Sort",
+			ALERT_UNHANDLED_STATUS: "Unhandled status",
+			ALERT_RELOAD_TO_VIEW: "Failed to update view, reload page",
+			ALERT_SAME_CONTENT_UPDATE: "Update with the same content not allowed",
+			ALERT_NO_TABLE_NAME: "Table name not provided",
+			ALERT_NO_COLUMN_NAME: "Table columns not provided",
+			ALERT_IMPROPER_COLUMN_NAME: "Invalid column names are found",
+			CONFIRM_TABLE_NEW_ROW: "Add row",
+			CONFIRM_TABLE_DELETE_ROW: "Delete row",
+			CONFIRM_TABLE_UPDATE_ROW: "Commit update",
+			CONFIRM_NEW_TABLE: "Create table",
+			CONFIRM_DELETE_TABLE: "Delete table"
+		};
+
+
+		fetch("/locale-titles")
+		.then(response => {
+
+			if(!response.status === 200) console.log(`fetching locale titles status ${response.status}`);
+			else response.json().then(data => Object.keys(data).forEach(key => this.localeTitles[key] = data[key]))
+		})
+		.catch(E => consle.log(E));
+
+
 		if(tableName) {
 
 			this.tableName = tableName;
@@ -18,32 +58,12 @@ class MargaretGrip {
 			this.tableRowsBuilder = document.getElementsByClassName("manage-form")[0];
 
 
-			// Deafult titles
-			this.localTitles = {
-
-				ITEM_DELETE_TITLE: "Delete",
-				ITEM_EDIT_TITLE: "Edit",
-				ITEM_NEW_TABLE_TITLE: "New table",
-				ITEM_OPEN_TABLE_TITLE: "Open table",
-				ITEM_BACK_TO_STRUCTURE_TITLE: "Back to tables",
-				ITEM_SUBMIT_NEW_ROW_TITLE: "Submit new row",
-				ITEM_CANCEL_EDIT_TITLE: "Clear",
-				ITEM_SUBMIT_ROW_UPDATE_TITLE: "Submit row update",
-				ITEM_DELETE_ROW_TITLE: "Delete row",
-				ITEM_EDIT_ROW_TITLE: "Edit row",
-				ITEM_DELETE_COLUMN_TITLE: "Delete column",
-				ITEM_NEW_TABLE_COLUMN_TITLE: "New column",
-				ITEM_SUBMIT_NEW_TABLE_TITLE: "Submit new table",
-				ITEM_SORTING_TOGGLE_TITLE: "Sort"
-			};
-
-
-			this.numberTypeKeys = "0123456789";
-			this.dateTypeKeys = "-0123456789";
+			this.tableNumberTypeKeys = "0123456789";
+			this.tableDateTypeKeys = "-0123456789";
 
 
 			this.tableHeaders = [];
-			this.headersTypes = [];
+			this.tableHeadersTypes = [];
 			this.tableRows = [];
 			this.tableColumnsCount;
 			this.tableRowsCount;
@@ -58,7 +78,7 @@ class MargaretGrip {
 			const builderForm = document.getElementsByClassName("builder-form")[0];
 
 			builderForm.elements["submit"].addEventListener("click",event => this.builderNewTable(event));
-			this.tableAlias = builderForm.getElementsByClassName("table-input")[0];
+			this.builderAlias = builderForm.getElementsByClassName("table-input")[0];
 			this.builderTable = builderForm.getElementsByClassName("builder-table")[0];
 			this.builderTable.rows[0].getElementsByClassName("clear-button")[0].addEventListener("click",event => this.builderClearTableName(event));
 			this.builderTable.getElementsByClassName("new-column-button")[0].addEventListener("click",event => this.builderNewColumn(event));
@@ -79,8 +99,8 @@ class MargaretGrip {
 			});
 
 
-			this.columnRadioIdRegex = /row-(text|date|number)-(\d+)/;
-			this.columnRadioNameRegex = /row-(\d+)-type/;
+			this.builderColumnRadioIdRegex = /row-(text|date|number)-(\d+)/;
+			this.builderColumnRadioNameRegex = /row-(\d+)-type/;
 		}
 	}
 	tableGetHeaders() {
@@ -97,7 +117,7 @@ class MargaretGrip {
 
 			// Adding to header haeder name without sorting button
 			this.tableHeaders.push(header.innerText.trim().slice(0,-1));
-			this.headersTypes.push(header.className.split("-")[2]);
+			this.tableHeadersTypes.push(header.className.split("-")[2]);
 
 			header.getElementsByClassName("table-header-sort")[0].addEventListener("click", event => this.tableSortColumn(event,i -2));
 
@@ -130,18 +150,20 @@ class MargaretGrip {
 		this.tableRowsBuilder.elements["cancel"].addEventListener("click",event => this.cleartableRowsBuilder(event));
 		this.tableRowsBuilder.elements["update"].addEventListener("click",event => this.tableUpdateRow(event));
 
-		this.headersTypes.forEach((T,i) => {
+		this.tableHeadersTypes.forEach((T,i) => {
 
 			switch(T) {
 				case "10": this.tableRowsBuilder[i].addEventListener("input", event => {
 
-					if(event.inputType === "insertText" && !this.dateTypeKeys.includes(event.data))
+					if(event.inputType === "insertText" && !this.tableDateTypeKeys.includes(event.data))
 						event.target.value = event.target.value.slice(0,-1)
+
 				});	break;
 
 				case "8": this.tableRowsBuilder[i].addEventListener("input", event => {
-					if(event.inputType === "insertText" && !this.numberTypeKeys.includes(event.data))
+					if(event.inputType === "insertText" && !this.tableNumberTypeKeys.includes(event.data))
 						event.target.value = event.target.value.slice(0,-1)
+
 				});	break;
 			}
 		})
@@ -150,7 +172,7 @@ class MargaretGrip {
 
 		const nextState = event.target.innerHTML.trim().charCodeAt(0) ^2;
 		const ascending = Boolean(nextState &2);
-		const typeCode = this.headersTypes[orderIndex];
+		const typeCode = this.tableHeadersTypes[orderIndex];
 		let   r1n;
 		let   r2n;
 
@@ -214,7 +236,7 @@ class MargaretGrip {
 		});
 
 
-		if(!confirm(`Add row ${JSON.stringify(query)} to ${this.tableName}?`)) return;
+		if(!confirm(`${this.localeTitles.CONFIRM_TABLE_NEW_ROW} ${JSON.stringify(query)}?`)) return;
 
 
 		fetch(
@@ -238,13 +260,13 @@ class MargaretGrip {
 					const delButton = newRow.insertCell().appendChild(document.createElement("button"));
 					delButton.className = "delete-button";
 					delButton.addEventListener("click",event => this.tableDeleteRow(event));
-					delButton.title = this.localTitles.ITEM_DELETE_ROW_TITLE;
+					delButton.title = this.localeTitles.ITEM_DELETE_ROW_TITLE;
 					delButton.innerText = "X";
 
 					const updButton = newRow.insertCell().appendChild(document.createElement("button"));
 					updButton.className = "update-button-button";
 					updButton.addEventListener("click",event => this.tableEditRow(event));
-					updButton.title = this.localTitles.ITEM_EDIT_ROW_TITLE;
+					updButton.title = this.localeTitles.ITEM_EDIT_ROW_TITLE;
 					updButton.innerText = "»";
 
 					this.tableRows.unshift(this.tableHeaders.map(header => {
@@ -261,7 +283,7 @@ class MargaretGrip {
 					break;
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	alert(`Unhandled status ${response.status}`); break;
+				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
 	}
@@ -281,7 +303,7 @@ class MargaretGrip {
 		});
 
 
-		if(!confirm(`Delete row ${JSON.stringify(query)} from ${this.tableName}?`)) return;
+		if(!confirm(`${this.localeTitles.CONFIRM_TABLE_DELETE_ROW} ${JSON.stringify(query)}?`)) return;
 
 
 		fetch(
@@ -299,7 +321,7 @@ class MargaretGrip {
 
 					const viewRowToDelete = this.tableFindRow(viewRow)
 
-					if(viewRowToDelete === -1) alert("Failed to update view, reload page")
+					if(viewRowToDelete === -1) alert(this.localeTitles.ALERT_RELOAD_TO_VIEW)
 					else {
 
 						this.tableContent.deleteRow(Array.prototype.indexOf.call(this.tableContent.rows,currentRow));
@@ -309,7 +331,7 @@ class MargaretGrip {
 					}	break;
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	alert(`Unhandled status ${response.status}`); break;
+				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
 	}
@@ -339,9 +361,9 @@ class MargaretGrip {
 
 			if(Object.keys(query.origin).reduce((A,k) => A + (query.origin[k] === query.update[k] ? 1 : 0),0) === this.tableColumnsCount) {
 
-				alert("Update with the same content not allowed!");
+				alert(this.localeTitles.ALERT_SAME_CONTENT_UPDATE);
 				return
-			}	if(!confirm(`Commit ${JSON.stringify(query)} update in ${this.tableName}?`)) return;
+			}	if(!confirm(`${this.localeTitles.CONFIRM_TABLE_UPDATE_ROW} ${JSON.stringify(query)}?`)) return;
 
 
 			fetch(
@@ -373,7 +395,7 @@ class MargaretGrip {
 						break;
 
 					case 500:	response.json().then(data => alert(data.reason)); break;
-					default:	alert(`Unhandled status ${response.status}`); break;
+					default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 
 				}	this.tableOriginRow = null
 			})
@@ -403,19 +425,19 @@ class MargaretGrip {
 		event.preventDefault();
 
 
-		if(this.tableAlias.value === "") {
+		if(this.builderAlias.value === "") {
 
-			alert("Table name not provided!");
+			alert(this.localeTitles.ALERT_NO_TABLE_NAME);
 			return
 		}
 		if(!this.builderColumnsCount) {
 
-			alert("Table columns not provided");
+			alert(this.localeTitles.ALERT_NO_COLUMN_NAME);
 			return
 		}
 
 
-		const newTableName = this.tableAlias.value.trim().split(" ").filter(Boolean).join(" ");
+		const newTableName = this.builderAlias.value.trim().split(" ").filter(Boolean).join(" ");
 		const query = { table: newTableName, columns: {}};
 		const columnIndecies = {};
 		const emptyColumns = [];
@@ -446,10 +468,10 @@ class MargaretGrip {
 
 		if(invalid.size) {
 
-			alert("Invalid column names are found!");
+			alert(this.localeTitles.ALERT_IMPROPER_COLUMN_NAME);
 			invalid.forEach(i => this.builderMarkInvalid(this.builderColumns[i]));
 			return
-		}	if(!confirm(`Create table ${newTableName}?`)) return;
+		}	if(!confirm(`${this.localeTitles.CONFIRM_NEW_TABLE} ${newTableName}?`)) return;
 
 
 		fetch(
@@ -465,7 +487,7 @@ class MargaretGrip {
 
 				case 200:	location.href = "/"; break;
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	alert(`Unhandled status ${response.status}`); break;
+				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
 	}
@@ -493,8 +515,8 @@ class MargaretGrip {
 		let   currentId;
 
 
-		currentName = inputs[0].name.replace(this.columnRadioNameRegex, this.builderNewRadioName);
-		currentId = inputs[0].id.replace(this.columnRadioIdRegex, this.builderNewRadioId);
+		currentName = inputs[0].name.replace(this.builderColumnRadioNameRegex, this.builderNewRadioName);
+		currentId = inputs[0].id.replace(this.builderColumnRadioIdRegex, this.builderNewRadioId);
 		radioTextType.value = 0;
 		radioTextType.type = "radio";
 		radioTextType.name = currentName;
@@ -504,8 +526,8 @@ class MargaretGrip {
 		radioTextType.checked = true;
 
 
-		currentName = inputs[1].name.replace(this.columnRadioNameRegex, this.builderNewRadioName);
-		currentId = inputs[1].id.replace(this.columnRadioIdRegex, this.builderNewRadioId);
+		currentName = inputs[1].name.replace(this.builderColumnRadioNameRegex, this.builderNewRadioName);
+		currentId = inputs[1].id.replace(this.builderColumnRadioIdRegex, this.builderNewRadioId);
 		radioDateType.value = 1;
 		radioDateType.type = "radio";
 		radioDateType.name = currentName;
@@ -514,8 +536,8 @@ class MargaretGrip {
 		radioDateTypeLabel.innerText = labels[1].innerText;
 
 
-		currentName = inputs[2].name.replace(this.columnRadioNameRegex, this.builderNewRadioName);
-		currentId = inputs[2].id.replace(this.columnRadioIdRegex, this.builderNewRadioId);
+		currentName = inputs[2].name.replace(this.builderColumnRadioNameRegex, this.builderNewRadioName);
+		currentId = inputs[2].id.replace(this.builderColumnRadioIdRegex, this.builderNewRadioId);
 		radioNumberType.value = 2;
 		radioNumberType.type = "radio";
 		radioNumberType.name = currentName;
@@ -526,6 +548,7 @@ class MargaretGrip {
 
 		delButton.className = "delete-button";
 		delButton.innerText = "X";
+		delButton.title = this.localeTitles["ITEM_DELETE_COLUMN_TITLE"];
 		delButton.addEventListener("click",event => this.builderDeleteColumn(event));
 
 
@@ -554,7 +577,7 @@ class MargaretGrip {
 	builderClearTableName(event /* Event */) {
 
 		event.preventDefault();
-		this.tableAlias.value = ""
+		this.builderAlias.value = ""
 	}
 	builderNewRadioId = (match, p1, p2) => `row-${p1}-${parseInt(p2)+1}`;
 	builderNewRadioName = (match, p1) => `row-${parseInt(p1)+1}-type`;
@@ -575,7 +598,7 @@ class MargaretGrip {
 		const tableAlias = structureRow.getElementsByClassName("structure-table-menu-item")[2].innerText.trim();
 
 
-		if(!confirm(`Delete table ${tableAlias}?`)) return;
+		if(!confirm(`${this.localeTitles.CONFIRM_DELETE_TABLE} ${tableAlias}?`)) return;
 
 
 		fetch(
