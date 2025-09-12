@@ -601,7 +601,7 @@ class MargaretGrip {
 			if(column) column.style.backgroundColor = "rgb(255,255,255)"
 		},	5000)
 	}
-	static structureDeleteTable(event /* Event */, tableName /* String */) {
+	static structureDeleteTable(event /* Event */, tableName /* String */, confirmString) {
 
 		event.preventDefault();
 
@@ -610,7 +610,7 @@ class MargaretGrip {
 		const tableAlias = structureRow.getElementsByClassName("structure-table-menu-item")[2].innerText.trim();
 
 
-		if(!confirm(`${this.localeTitles.CONFIRM_DELETE_TABLE} ${tableAlias}?`)) return;
+		if(!confirm(`${confirmString} ${tableAlias}?`)) return;
 
 
 		fetch(

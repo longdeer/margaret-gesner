@@ -39,33 +39,6 @@ loggy = Logger(getenv("LOGGY_FILE"), getenv("APP_NAME"), getenv("LOGGY_LEVEL"))
 
 
 
-@app.route("/")
-async def index():
-
-	if	in_access_list((rsrc := request.remote_addr), loggy):
-
-		tables = await get_structure(rsrc, loggy)
-		names = sorted(tables)
-		aliases = [ tables[name] for name in names ]
-		serials = list(map(serialize_alias,aliases))
-
-		return render_template(
-
-			"index.html",
-			names=names,
-			aliases=aliases,
-			serials=serials,
-			rsrc=rsrc,
-			ITEM_DELETE_TITLE=getenv("ITEM_DELETE_TITLE"),
-			ITEM_EDIT_TITLE=getenv("ITEM_EDIT_TITLE"),
-			ITEM_NEW_TABLE_TITLE=getenv("ITEM_NEW_TABLE_TITLE"),
-			ITEM_OPEN_TABLE_TITLE=getenv("ITEM_OPEN_TABLE_TITLE")
-		)
-	return	render_template("restricted.html")
-
-
-
-
 @app.route("/locale-titles")
 def get_locale_titles() -> str :
 
@@ -103,8 +76,36 @@ def get_locale_titles() -> str :
 
 
 
+@app.route("/")
+async def index() -> str :
+
+	if	in_access_list((rsrc := request.remote_addr), loggy):
+
+		tables = await get_structure(rsrc, loggy)
+		names = sorted(tables)
+		aliases = [ tables[name] for name in names ]
+		serials = list(map(serialize_alias,aliases))
+
+		return render_template(
+
+			"index.html",
+			names=names,
+			aliases=aliases,
+			serials=serials,
+			rsrc=rsrc,
+			ITEM_DELETE_TITLE=getenv("ITEM_DELETE_TITLE"),
+			ITEM_EDIT_TITLE=getenv("ITEM_EDIT_TITLE"),
+			ITEM_NEW_TABLE_TITLE=getenv("ITEM_NEW_TABLE_TITLE"),
+			ITEM_OPEN_TABLE_TITLE=getenv("ITEM_OPEN_TABLE_TITLE"),
+			CONFIRM_DELETE_TABLE=getenv("CONFIRM_DELETE_TABLE")
+		)
+	return	render_template("restricted.html")
+
+
+
+
 @app.route("/table-builder")
-def table_constructor():
+def table_constructor() -> str :
 
 	if	in_access_list((rsrc := request.remote_addr), loggy):
 		return render_template(
@@ -131,9 +132,17 @@ async def table(name :str, serial :str) -> str :
 
 	if	in_access_list((rsrc := request.remote_addr), loggy):
 
-		# content will have structure:
-		# ( column names ),(( row1_col1, row1_col2, ... ),( row2_col1, row2_col2, ... ), ... )
 		alias = deserialize_alias(serial)
+		# content will have structure:
+		# [
+		# 	[ column names ],
+		# 	[ col1_type, col2_type, ... ],
+		# 	[
+		# 		[ row1_col1, row1_col2, ... ],
+		# 		[ row2_col1, row2_col2, ... ],
+		# 		...
+		# 	]
+		# ]
 		content = await get_table_content(name, alias, rsrc, loggy)
 
 		return render_template(

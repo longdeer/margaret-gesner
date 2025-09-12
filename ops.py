@@ -39,6 +39,17 @@ def deserialize_alias(serialized_alias :str) -> str :
 
 
 
+def sanityze_query(raw :str) -> str :
+
+	"""
+		Removes whitespases from query string
+	"""
+
+	return " ".join(filter(bool,raw.strip().replace("\n"," ").replace("\t"," ").split(" ")))
+
+
+
+
 
 
 
