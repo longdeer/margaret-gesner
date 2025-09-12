@@ -33,11 +33,13 @@ class MargaretGrip {
 			ALERT_NO_TABLE_NAME: "Table name not provided",
 			ALERT_NO_COLUMN_NAME: "Table columns not provided",
 			ALERT_IMPROPER_COLUMN_NAME: "Invalid column names are found",
+			ALERT_TABLE_NOT_MODFIED: "Table not modified",
 			CONFIRM_TABLE_NEW_ROW: "Add row",
 			CONFIRM_TABLE_DELETE_ROW: "Delete row",
 			CONFIRM_TABLE_UPDATE_ROW: "Commit update",
 			CONFIRM_NEW_TABLE: "Create table",
-			CONFIRM_DELETE_TABLE: "Delete table"
+			CONFIRM_DELETE_TABLE: "Delete table",
+			CONFIRM_MODIFY_TABLE: "Modify table"
 		};
 
 
@@ -75,26 +77,36 @@ class MargaretGrip {
 
 		}	else {
 
-			const builderForm = document.getElementsByClassName("builder-form")[0];
+			this.builderForm = document.getElementsByClassName("builder-form")[0];
+			this.builderAlias = this.builderForm.getElementsByClassName("table-input")[0];
+			this.builderTable = this.builderForm.getElementsByClassName("builder-table")[0];
+			this.buildereditMode = this.builderTable.rows[0].cells[0].getElementsByTagName("label")[0].title;
 
-			builderForm.elements["submit"].addEventListener("click",event => this.builderNewTable(event));
-			this.builderAlias = builderForm.getElementsByClassName("table-input")[0];
-			this.builderTable = builderForm.getElementsByClassName("builder-table")[0];
+
 			this.builderTable.rows[0].getElementsByClassName("clear-button")[0].addEventListener("click",event => this.builderClearTableName(event));
 			this.builderTable.getElementsByClassName("new-column-button")[0].addEventListener("click",event => this.builderNewColumn(event));
+			if(this.buildereditMode) this.builderForm.elements["submit"].addEventListener("click",event => this.builderModifyTable(event));
+			else this.builderForm.elements["submit"].addEventListener("click",event => this.builderNewTable(event));
 
 
+			this.builderOriginalAlias = this.builderAlias.value;
+			this.builderOriginalColumnsCount = 0;
+			this.builderOriginalColumns = [];
 			this.builderColumnsCount = 0;
 			this.builderColumns = [];
 			this.builderRows = [];
 
+			let rowInput;
 
 			Array.prototype.slice.call(this.builderTable.rows,1,-1).forEach(row => {
 
-				row.getElementsByClassName("delete-button")[0].addEventListener("click",event => this.builderDeleteColumn(event));
-				this.builderColumns.push(row.getElementsByClassName("table-input")[0]);
+				row.getElementsByClassName("delete-button")[0].addEventListener("click",this.buildereditMode ? this.builderToggleColumn : event => this.builderDeleteColumn(event));
+				rowInput = row.getElementsByClassName("table-input")[0];
+				this.builderOriginalColumns.push(rowInput.value);
+				this.builderColumns.push(rowInput);
 				this.builderRows.push(row);
 
+				++this.builderOriginalColumnsCount;
 				++this.builderColumnsCount
 			});
 
@@ -449,13 +461,12 @@ class MargaretGrip {
 		}
 
 
-		const newTableName = this.builderAlias.value.trim().split(" ").filter(Boolean).join(" ");
-		const query = { table: newTableName, columns: {}};
+		const newTableAlias = this.builderAlias.value.trim().split(" ").filter(Boolean).join(" ");
+		const query = { table: newTableAlias, columns: {}};
 		const columnIndecies = {};
 		const emptyColumns = [];
 		const invalid = new Set();
 		let   columnName;
-		let   columnRadio;
 
 
 		this.builderRows.forEach((row,i) => {
@@ -465,7 +476,6 @@ class MargaretGrip {
 			if(columnName !== "") {
 				if(!(columnName in columnIndecies)) columnIndecies[columnName] = new Set();
 
-				columnRadio = row.querySelector(`input:checked`).value;
 				query.columns[columnName] = row.querySelector(`input:checked`).value;
 				columnIndecies[columnName].add(i);
 			}	else emptyColumns.push(i);
@@ -483,13 +493,102 @@ class MargaretGrip {
 			alert(this.localeTitles.ALERT_IMPROPER_COLUMN_NAME);
 			invalid.forEach(i => this.builderMarkInvalid(this.builderColumns[i]));
 			return
-		}	if(!confirm(`${this.localeTitles.CONFIRM_NEW_TABLE} ${newTableName}?`)) return;
+		}	if(!confirm(`${this.localeTitles.CONFIRM_NEW_TABLE} ${newTableAlias}?`)) return;
 
 
 		fetch(
 			"/new-table",
 			{
 				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(query)
+			})
+		.then(response => {
+
+			switch(response.status) {
+
+				case 200:	location.href = "/"; break;
+				case 500:	response.json().then(data => alert(data.reason)); break;
+				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
+			}})
+		.catch(E => alert(E))
+	}
+	builderModifyTable(event /* Event */) {
+
+		event.preventDefault();
+
+
+		if(this.builderAlias.value === "") {
+
+			alert(this.localeTitles.ALERT_NO_TABLE_NAME);
+			return
+		}
+
+
+		const newTableAlias = this.builderAlias.value.trim().split(" ").filter(Boolean).join(" ");
+		const query = {
+
+			name:			this.buildereditMode,
+			origin:			this.builderOriginalAlias,
+			alias:			newTableAlias,
+			delColumns:		[],
+			newColumns:		{},
+			renamedColumns:	{}
+		};
+		const columnIndecies = {};
+		const emptyColumns = [];
+		const invalid = new Set();
+		let   originalName;
+		let   currentName;
+
+
+		this.builderRows.forEach((row,i) => {
+
+			originalName = this.builderOriginalColumns[i];
+			currentName = this.builderColumns[i].value.trim().split(" ").filter(Boolean).join(" ");
+
+			if(originalName && this.builderColumns[i].disabled) query.delColumns.push(originalName);
+			else {
+
+				if(currentName !== "") {
+
+					if(!(currentName in columnIndecies)) columnIndecies[currentName] = new Set();
+					if(originalName !== currentName) {
+
+						if(originalName) query.renamedColumns[originalName] = currentName;				// renamed
+						else query.newColumns[currentName] = row.querySelector(`input:checked`).value;	// new column
+					}
+					columnIndecies[currentName].add(i);
+				}	else emptyColumns.push(i);
+			}
+		});
+
+
+		if(this.builderOriginalAlias === newTableAlias && !query.delColumns.length && !Object.keys(query.renamedColumns).length && !Object.keys(query.newColumns).length) {
+
+			alert(this.localeTitles.ALERT_TABLE_NOT_MODFIED);
+			return
+		}
+
+
+		Object.values(columnIndecies).forEach(indecies => {
+
+			if(1 <indecies.size) indecies.forEach(i => invalid.add(i))
+		});	emptyColumns.forEach(i => invalid.add(i));
+
+
+		if(invalid.size) {
+
+			alert(this.localeTitles.ALERT_IMPROPER_COLUMN_NAME);
+			invalid.forEach(i => this.builderMarkInvalid(this.builderColumns[i]));
+			return
+		}	if(!confirm(`${this.localeTitles.CONFIRM_MODIFY_TABLE} ${this.builderOriginalAlias}?`)) return;
+
+
+		fetch(
+			"/upd-table",
+			{
+				method: "UPDATE",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(query)
 			})
@@ -586,6 +685,22 @@ class MargaretGrip {
 			--this.builderColumnsCount
 		}
 	}
+	builderToggleColumn(event /* Event */) {
+
+		event.preventDefault();
+		const button = event.target.parentNode.parentNode.getElementsByClassName("table-input")[0];
+
+		if(!button.disabled) {
+
+			button.disabled = true;
+			event.target.innerText = "+"
+
+		}	else {
+
+			button.disabled = false;
+			event.target.innerText = "X"
+		}
+	}
 	builderClearTableName(event /* Event */) {
 
 		event.preventDefault();
@@ -601,7 +716,7 @@ class MargaretGrip {
 			if(column) column.style.backgroundColor = "rgb(255,255,255)"
 		},	5000)
 	}
-	static structureDeleteTable(event /* Event */, tableName /* String */, confirmString) {
+	static structureDeleteTable(event /* Event */, tableName /* String */, confirmString /* String */, alertString /* String */) {
 
 		event.preventDefault();
 
@@ -626,7 +741,7 @@ class MargaretGrip {
 
 				case 200:	location.reload(); break;
 				case 500:	response.json().then(data => alert(data.reason)); break;
-				default:	alert(`Unhandled status ${response.status}`); break;
+				default:	alert(`${alertString} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
 	}
