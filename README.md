@@ -23,9 +23,9 @@ configuration
 suggests ``.env`` content:
 ```
 # server configuration
-APP_NAME=$PWD/client
+APP_NAME=string
 APP_STATIC_FOLDER=$PWD/client
-APP_TEMPLATES_FOLDER=
+APP_TEMPLATES_FOLDER=$PWD/client
 LISTEN_ADDRESS=ip
 LISTEN_PORT=port
 LOGGY_FILE=path
