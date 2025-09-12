@@ -254,20 +254,30 @@ class MargaretGrip {
 
 					this.cleartableRowsBuilder();
 
+
 					let   newCell;
 					const newRow = this.tableContent.insertRow();
 
-					const delButton = newRow.insertCell().appendChild(document.createElement("button"));
+
+					const delButtonCell = newRow.insertCell();
+					const updButtonCell = newRow.insertCell();
+					const delButton = delButtonCell.appendChild(document.createElement("button"));
+					const updButton = updButtonCell.appendChild(document.createElement("button"));
+
+
+					delButtonCell.className = "table-content-edit";
 					delButton.className = "delete-button";
 					delButton.addEventListener("click",event => this.tableDeleteRow(event));
 					delButton.title = this.localeTitles.ITEM_DELETE_ROW_TITLE;
 					delButton.innerText = "X";
 
-					const updButton = newRow.insertCell().appendChild(document.createElement("button"));
-					updButton.className = "update-button-button";
+
+					updButtonCell.className = "table-content-edit";
+					updButton.className = "update-button";
 					updButton.addEventListener("click",event => this.tableEditRow(event));
 					updButton.title = this.localeTitles.ITEM_EDIT_ROW_TITLE;
 					updButton.innerText = "»";
+
 
 					this.tableRows.unshift(this.tableHeaders.map(header => {
 
@@ -278,9 +288,11 @@ class MargaretGrip {
 						return query[header] || ""
 					}));
 
+
 					++this.tableRowsCount;
 					this.tableUpdateRows();
 					break;
+
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
 				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
