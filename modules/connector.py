@@ -1,9 +1,10 @@
 import	json
 from	typing			import Dict
-from	typing			import Tuple
+from	typing			import List
 from	operator		import itemgetter
 from	datetime		import datetime
 from	os				import getenv
+from	ops				import sanityze_query
 import	mysql.connector
 
 
@@ -57,7 +58,55 @@ async def get_structure(rsrc :str, loggy) -> Dict[str,str] :
 		connection.close()
 
 
-	except	mysql.connector.Error as E : loggy.error(f"{E.__class__.__name__}: {E}")
+	except	Exception as E : loggy.error(f"{E.__class__.__name__}: {E}")
+	return	response
+
+
+
+
+
+
+
+
+async def get_table_structure(table_name :str, rsrc :str, loggy) -> List[[str,int],] :
+
+	response = list()
+
+	try:
+
+		dbname = getenv("DB_NAME")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in get_table_structure")
+
+
+		dbquery = sanityze_query(
+			"""
+
+				SELECT COLUMN_NAME,DATA_TYPE FROM INFORMATION_SCHEMA.columns
+				WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'
+
+			"""%(dbname, table_name)
+		)
+		loggy.debug(f"{rsrc} query: {dbquery}")
+
+
+		session.execute(dbquery)
+		response = [[ k,[ T.startswith(v.upper()) for T in COLUMN_TYPE ].index(True) ] for k,v in session ]
+		loggy.info(f"{rsrc} query result {response}")
+
+
+		session.close()
+		connection.close()
+
+
+	except	Exception as E : loggy.error(f"{E.__class__.__name__}: {E}")
 	return	response
 
 
@@ -71,7 +120,7 @@ async def get_table_content(table_name		:str,
 							table_alias:	str,
 							rsrc			:str,
 							loggy
-						)->	Tuple[Tuple[str,],Tuple[int,],Tuple[Tuple[str,],]] :
+						)->	List[List[str|int],] :
 
 	"""
 		table_name	- requested table name string;
@@ -80,7 +129,7 @@ async def get_table_content(table_name		:str,
 		loggy		- Logger object (logging wrapper).
 	"""
 
-	response = tuple()
+	response = list()
 
 	try:
 
@@ -114,7 +163,7 @@ async def get_table_content(table_name		:str,
 			type_codes.append(T)
 
 
-		loggy.info(f"queried {len(rows)} rows for {len(columns)} columns")
+		loggy.info(f"{rsrc} query result {len(rows)} rows for {len(columns)} columns")
 		response = columns, type_codes, rows
 
 
@@ -122,7 +171,7 @@ async def get_table_content(table_name		:str,
 		connection.close()
 
 
-	except	mysql.connector.Error as E : loggy.error(f"{E.__class__.__name__}: {E}")
+	except	Exception as E : loggy.error(f"{E.__class__.__name__}: {E}")
 	return	response
 
 
@@ -208,20 +257,6 @@ async def delete_table(content :str, rsrc :str, loggy) -> None | str :
 		table_alias = content.get("tableAlias")
 
 
-		# for k,v in content["columns"].items():
-
-		# 	column_names.append(k.replace("-","_").replace(" ","_"))
-		# 	column_types.append(COLUMN_TYPE[int(v)])
-
-
-		# if	not column_names or not column_types or len(column_names) != len(column_types):
-		# 	raise ValueError("Empty or inconsistent table data")
-
-
-		# table_name = f"TABLE{datetime.now().timestamp()}".replace(".","D")
-		# columns = ",".join( f"{name} {T}" for name,T in zip(column_names, column_types))
-
-
 		dbname = getenv("DB_NAME")
 		dbstructure = getenv("DB_STRUCTURE_TABLE")
 		connection = mysql.connector.connect(
@@ -267,7 +302,122 @@ async def delete_table(content :str, rsrc :str, loggy) -> None | str :
 
 
 
-async def update_table():		pass
+async def update_table(content :str, rsrc :str, loggy):
+
+	try:
+
+		table_name = content.get("name")
+		current_alias = content.get("origin")
+		new_alias = content.get("alias")
+		new_columns = content.get("newColumns")
+		del_columns = content.get("delColumns")
+		mv_columns = content.get("renamedColumns")
+
+
+		if	current_alias == new_alias and not new_columns and not del_columns and not mv_columns:
+			raise ValueError("Empty or inconsistent table data")
+
+
+		dbname = getenv("DB_NAME")
+		connection = mysql.connector.connect(
+
+			user=getenv("DB_USER_NAME"),
+			password=getenv("DB_USER_PASSWORD"),
+			host=getenv("DB_ADDRESS"),
+			database=dbname
+		)
+		session = connection.cursor()
+		loggy.debug(f"{dbname} connection established for {rsrc} in update_table")
+
+
+		if	del_columns:
+
+			try:
+
+				dbquery = "ALTER TABLE %s %s"%(table_name, ", ".join( f"DROP COLUMN {col}" for col in del_columns ))
+				loggy.debug(f"{rsrc} query: {dbquery}")
+
+				session.execute(dbquery)
+				loggy.info(f"{rsrc} dropped {table_name} columns {del_columns}")
+
+			except	Exception as E : loggy.error(f"Columns drop failed due to {E.__class__.__name__}: {E}")
+
+
+		if	mv_columns:
+
+			origin_names = list()
+			new_names = list()
+
+
+			for k,v in mv_columns.items():
+
+				origin_names.append(k)
+				new_names.append(v.replace("-","_").replace(" ","_"))
+
+
+			if	not origin_names or not new_names or len(origin_names) != len(new_names):
+				raise ValueError("Empty or inconsistent table data")
+
+			try:
+
+				dbquery = "ALTER TABLE %s %s"%(table_name, ", ".join( f"RENAME COLUMN {origin} TO {new}" for origin,new in zip(origin_names,new_names) ))
+				loggy.debug(f"{rsrc} query: {dbquery}")
+
+				session.execute(dbquery)
+				loggy.info(f"{rsrc} renamed {table_name} columns {mv_columns.values()}")
+
+			except	Exception as E : loggy.error(f"Columns rename failed due to {E.__class__.__name__}: {E}")
+
+
+		if	new_columns:
+
+			column_names = list()
+			column_types = list()
+
+
+			for k,v in new_columns.items():
+
+				column_names.append(k.replace("-","_").replace(" ","_"))
+				column_types.append(COLUMN_TYPE[int(v)])
+
+
+			if	not column_names or not column_types or len(column_names) != len(column_types):
+				raise ValueError("Empty or inconsistent table data")
+
+			try:
+
+				dbquery = "ALTER TABLE %s %s"%(table_name, ", ".join( f"ADD COLUMN {name} {T}" for name,T in zip(column_names,column_types) ))
+				loggy.debug(f"{rsrc} query: {dbquery}")
+
+				session.execute(dbquery)
+				loggy.info(f"{rsrc} new {table_name} columns {column_names}")
+
+			except	Exception as E : loggy.error(f"Columns addition failed due to {E.__class__.__name__}: {E}")
+
+
+		if	new_alias != current_alias:
+
+			try:
+
+				dbquery = "UPDATE %s SET %s = '%s' WHERE name = '%s'"%(getenv("DB_STRUCTURE_TABLE"), "alias", new_alias, table_name)
+				loggy.debug(f"{rsrc} query: {dbquery}")
+
+				session.execute(dbquery)
+				loggy.info(f"{rsrc} changed {table_name} alias to {new_alias}")
+
+			except	Exception as E : loggy.error(f"Alias rename failed due to {E.__class__.__name__}: {E}")
+
+
+		connection.commit()
+		session.close()
+		connection.close()
+
+
+	except	Exception as E:
+
+		response = f"{E.__class__.__name__}: {E}"
+		loggy.error(response)
+		return response
 
 
 
@@ -467,15 +617,6 @@ async def update_table_row(table_name :str, content :str, rsrc :str, loggy):
 		response = f"{E.__class__.__name__}: {E}"
 		loggy.error(response)
 		return response
-
-
-
-
-
-
-
-
-async def add_table_content():	pass
 
 
 
