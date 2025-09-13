@@ -3,9 +3,13 @@
 margaret-gesner
 ========
 Simple app for managing database as tables.
+
 Current stack:
+
 ``flask``
+
 ``MySQL``
+
 ``vanila``
 
 requirements
