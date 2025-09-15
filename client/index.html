@@ -10,13 +10,18 @@
 	<body>
 		<div class="structure-table">
 			<table class="structure-table-menu">
+				<colgroup>
+					<col style="width:5%">
+					<col style="width:5%">
+					<col style="width:90%;">
+				</colgroup>
 				{% for i in range(names | length) %}
 					<tr class="structure-table-menu-row">
 						<td>
 							<button class="structure-table-menu-item" title="{{ ITEM_DELETE_TITLE }}" onclick="MargaretGrip.structureDeleteTable(event,'{{ names[i] }}','{{ CONFIRM_DELETE_TABLE }}','{{ ALERT_UNHANDLED_STATUS }}')">X</button>
 						</td>
 						<td>
-							<button class="structure-table-menu-item" title="{{ ITEM_EDIT_TITLE }}" onclick="location.href='edit-{{ names[i] }}-{{ serials[i] }}'">>></button>
+							<button class="structure-table-menu-item" title="{{ ITEM_EDIT_TITLE }}" onclick="location.href='edit-{{ names[i] }}-{{ serials[i] }}'">»</button>
 						</td>
 						<td>
 							<button class="structure-table-menu-item" title="{{ ITEM_OPEN_TABLE_TITLE }}" onclick="location.href='table-{{ names[i] }}-{{ serials[i] }}'">
@@ -27,7 +32,7 @@
 				{% endfor %}
 				<tr class="structure-table-menu-row">
 					<td>
-						<button class="structure-table-menu-item" title="{{ ITEM_NEW_TABLE_TITLE }}" onclick="location.href='table-builder'">+</button>
+						<button class="structure-table-menu-item new-table-button" title="{{ ITEM_NEW_TABLE_TITLE }}" onclick="location.href='table-builder'">+</button>
 					</td>
 				</tr>
 			</table>

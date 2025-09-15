@@ -278,14 +278,16 @@ class MargaretGrip {
 
 
 					delButtonCell.className = "table-content-edit";
-					delButton.className = "delete-button";
+					delButton.classList.add("delete-button");
+					delButton.classList.add("table-menu-item");
 					delButton.addEventListener("click",event => this.tableDeleteRow(event));
 					delButton.title = this.localeTitles.ITEM_DELETE_ROW_TITLE;
 					delButton.innerText = "X";
 
 
 					updButtonCell.className = "table-content-edit";
-					updButton.className = "update-button";
+					updButton.classList.add("update-button");
+					updButton.classList.add("table-menu-item");
 					updButton.addEventListener("click",event => this.tableEditRow(event));
 					updButton.title = this.localeTitles.ITEM_EDIT_ROW_TITLE;
 					updButton.innerText = "»";
@@ -637,7 +639,7 @@ class MargaretGrip {
 		radioTextType.type = "radio";
 		radioTextType.name = currentName;
 		radioTextType.id = currentId;
-		radioTextTypeLabel.for = currentId;
+		radioTextTypeLabel.htmlFor = currentId;
 		radioTextTypeLabel.innerText = labels[0].innerText;
 		radioTextType.checked = true;
 
@@ -648,7 +650,7 @@ class MargaretGrip {
 		radioDateType.type = "radio";
 		radioDateType.name = currentName;
 		radioDateType.id = currentId;
-		radioDateTypeLabel.for = currentId;
+		radioDateTypeLabel.htmlFor = currentId;
 		radioDateTypeLabel.innerText = labels[1].innerText;
 
 
@@ -658,7 +660,7 @@ class MargaretGrip {
 		radioNumberType.type = "radio";
 		radioNumberType.name = currentName;
 		radioNumberType.id = currentId;
-		radioNumberTypeLabel.for = currentId;
+		radioNumberTypeLabel.htmlFor = currentId;
 		radioNumberTypeLabel.innerText = labels[2].innerText;
 
 

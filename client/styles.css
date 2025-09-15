@@ -8,19 +8,42 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: 0px 10px 10px 10px;
-}
-.structure-table-menu {
-	border: 5px solid blue;
-	margin: 10px;
+	padding: 50px 10px 10px 10px;
 }
 .structure-table-menu-item {
+	width: 100%;
 	background-color: white;
-	border: 5px solid green;
-	margin: 10px;
+	border: 3px solid black;
+	margin: 1px;
 	font: 2rem "Times New Roman", sans-serif;
 }
 .structure-table-menu-item:hover {
+	background-color: #E8E7E3;
+}
+.structure-link {
+	background-color: white;
+	border: 2px solid black;
+	font: 1rem "Times New Roman", sans-serif;
+	font-weight: bold;
+}
+.structure-link:hover {
+	background-color: #E8E7E3;
+}
+.table-edit-menu-item {
+	background-color: white;
+	border: 2px solid black;
+	font: 1rem "Times New Roman", sans-serif;
+	font-weight: bold;
+}
+.table-edit-menu-item:hover {
+	background-color: #E8E7E3;
+}
+.table-menu-item {
+	background-color: white;
+	border: none;
+	font: 1rem "Times New Roman", sans-serif;
+}
+.table-menu-item:hover {
 	background-color: #E8E7E3;
 }
 td.table-content-data {
@@ -31,6 +54,9 @@ td.table-content-data {
 td.table-content-edit {
 	text-align: center;
 	width: 10px;
+	border: 2px solid black;
+	padding: 0;
+	padding-top: 0;
 }
 .table-content {
 	width: 100%;
@@ -47,7 +73,6 @@ td.table-content-edit {
 	width: 100%;
 }
 .structure-table-menu-row {
-	display: flex;
 	justify-content: center;
 }
 .navigation {

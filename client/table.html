@@ -23,17 +23,17 @@
 							<td class="table-adding-label"><label for='{{ i }}'>{{ content[0][i] }}</label></td>
 							<td>
 								{% if content[1][i] == 10 %}
-									<input class="table-input" name='{{ i }}' type='text' placeholder="{{ ITEM_DATE_TYPE_PLACEHOLDER }}">
+									<input class="table-input" name='{{ i }}' type='text' placeholder="{{ ITEM_DATE_TYPE_PLACEHOLDER }}" />
 								{% else %}
-									<input class="table-input" name='{{ i }}' type='text'>
+									<input class="table-input" name='{{ i }}' type='text' />
 								{% endif %}
 							</td>
 						</tr>
 					{% endfor %}
 				</table>
-				<input type="submit" name="submit" value="+" title="{{ ITEM_SUBMIT_NEW_ROW_TITLE }}">
-				<input type="submit" name="cancel" value="X" title="{{ ITEM_CANCEL_EDIT_TITLE }}">
-				<input type="submit" name="update" value="V" title="{{ ITEM_SUBMIT_ROW_UPDATE_TITLE }}">
+				<input class="table-edit-menu-item" type="submit" name="submit" value="+" title="{{ ITEM_SUBMIT_NEW_ROW_TITLE }}" />
+				<input class="table-edit-menu-item" type="submit" name="cancel" value="X" title="{{ ITEM_CANCEL_EDIT_TITLE }}" />
+				<input class="table-edit-menu-item" type="submit" name="update" value="V" title="{{ ITEM_SUBMIT_ROW_UPDATE_TITLE }}" />
 			</form>
 		</div>
 		<div class="structure-table">
@@ -50,10 +50,10 @@
 				{% for row in content[2] %}
 					<tr>
 						<td class="table-content-edit">
-							<button class="delete-button" title="{{ ITEM_DELETE_ROW_TITLE }}">X</button>
+							<button class="delete-button table-menu-item" title="{{ ITEM_DELETE_ROW_TITLE }}">X</button>
 						</td>
 						<td class="table-content-edit">
-							<button class="update-button" title="{{ ITEM_EDIT_ROW_TITLE }}">»</button>
+							<button class="update-button table-menu-item" title="{{ ITEM_EDIT_ROW_TITLE }}">»</button>
 						</td>
 						{% for item in row %}
 							{% if item is not none %}
