@@ -3,11 +3,18 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Margaret Gesner Creator</title>
+		<title>{{ ITEM_EDITOR_PAGE_TITLE }}</title>
 		<link rel="stylesheet" href="client/styles.css">
 		<script type="text/javascript" src="client/margaret.js"></script>
 	</head>
 	<body onload="new MargaretGrip();">
+		{% if TOOLTIP_EDITOR_LIST is not none %}
+			<div class="tooltip-area">
+				{% for line in TOOLTIP_EDITOR_LIST %}
+					<p>{{ line }}</p>
+				{% endfor %}
+			</div>
+		{% endif %}
 		<div class="navigation">
 			<button class="structure-link" title="{{ ITEM_BACK_TO_STRUCTURE_TITLE }}" onclick="location.href='/'"><<</button>
 		</div>

@@ -3,11 +3,18 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Margaret Gesner Library</title>
+		<title>{{ ITEM_INDEX_PAGE_TITLE }}</title>
 		<link rel="stylesheet" href="client/styles.css">
 		<script type="text/javascript" src="client/margaret.js"></script>
 	</head>
 	<body>
+		{% if TOOLTIP_INDEX_LIST is not none %}
+			<div class="tooltip-index-area">
+				{% for line in TOOLTIP_INDEX_LIST %}
+					<p>{{ line }}</p>
+				{% endfor %}
+			</div>
+		{% endif %}
 		<div class="structure-table">
 			<table class="structure-table-menu">
 				<colgroup>

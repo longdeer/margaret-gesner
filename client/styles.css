@@ -93,7 +93,7 @@ td.builder-alias-data {
 }
 .navigation {
 	display: flex;
-	padding: 10px 10px 5px 10px;
+	padding: 10px 10px 10px 11px;
 }
 .builder-menu {
 	padding: 0px 10px 10px 10px;
@@ -108,4 +108,12 @@ td.builder-alias-data {
 }
 .table-edit-submit-item:hover {
 	background-color: #E8E7E3;
+}
+.tooltip-area {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.tooltip-index-area {
+	text-align: center;
+	font: 2rem "Times New Roman", sans-serif;
 }
