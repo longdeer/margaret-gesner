@@ -1,14 +1,16 @@
 .manage-table {
-	padding: 10px 10px 0px 10px;
+	padding: 5px 10px 0px 10px;
 }
 .table-adding-label {
 	padding-right: 5px;
+	padding-left: 5px;
+	border: 2px solid black;
 }
 .structure-table {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: 50px 10px 10px 10px;
+	padding: 10px;
 }
 .structure-table-menu-item {
 	width: 100%;
@@ -58,6 +60,19 @@ td.table-content-edit {
 	padding: 0;
 	padding-top: 0;
 }
+td.table-input-data {
+	border: 2px solid black;
+	padding-left: 2px;
+	padding-right: 10px;
+}
+td.builder-input-data {
+	text-align: center;
+	border: 2px solid black;
+}
+td.builder-alias-data {
+	text-align: center;
+	border: 2px solid black;
+}
 .table-content {
 	width: 100%;
 }
@@ -71,17 +86,26 @@ td.table-content-edit {
 }
 .table-input {
 	width: 100%;
+	border: none;
 }
 .structure-table-menu-row {
 	justify-content: center;
 }
 .navigation {
 	display: flex;
-	padding: 10px;
+	padding: 10px 10px 5px 10px;
 }
 .builder-menu {
 	padding: 0px 10px 10px 10px;
 }
 .builder-table {
 	width: 100%;
+}
+.table-edit-submit-item {
+	width: 100%;
+	background-color: white;
+	border: none;
+}
+.table-edit-submit-item:hover {
+	background-color: #E8E7E3;
 }

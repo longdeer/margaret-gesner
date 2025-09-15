@@ -20,13 +20,13 @@
 						<col style="width:89%;">
 					</colgroup>
 					<tr>
-						<td><label for="new-table-alias" title={{ name }}>{{ NEW_TABLE_ALIAS }}</label></td>
-						<td><button class="clear-button" title="{{ ITEM_CANCEL_EDIT_TITLE }}">X</button></td>
-						<td><input type="text" name="new-table-alias" class="table-input" value="{{ alias }}" /></td>
+						<td class="builder-alias-data"><label for="new-table-alias" title={{ name }}>{{ NEW_TABLE_ALIAS }}</label></td>
+						<td class="builder-input-data"><button class="clear-button table-menu-item" title="{{ ITEM_CANCEL_EDIT_TITLE }}">X</button></td>
+						<td class="builder-input-data"><input type="text" name="new-table-alias" class="table-input" value="{{ alias }}" /></td>
 					</tr>
 					{% for i in range(content | length) %}
 						<tr>
-							<td>
+							<td class="builder-input-data">
 
 								{% if content[i][1] == 0 %}
 									<input type="radio" id="row-text-{{ i +1 }}" name="row-{{ i +1 }}-type" value="0" checked disabled />
@@ -47,21 +47,24 @@
 								{% endif %}
 								<label for="row-number-{{ i +1 }}">{{ RADIO_NUMBER }}</label>
 							</td>
-							<td>
-								<button class="delete-button" title="{{ ITEM_DELETE_COLUMN_TITLE }}">X</button>
+							<td class="builder-input-data">
+								<button class="delete-button table-menu-item" title="{{ ITEM_DELETE_COLUMN_TITLE }}">X</button>
 							</td>
-							<td>
+							<td class="builder-input-data">
 								<input type="text" name="new-table-row" class="table-input" value="{{ content[i][0] }}" placeholder="{{ RAW_PLACEHOLDER }}" />
 							</td>
 						</tr>
 					{% endfor %}
 					<tr>
-						<td></td>
-						<td><button class="new-column-button" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}">+</button></td>
+						<td class="builder-input-data">
+							<input class="table-edit-submit-item" type="submit" name="submit" title="{{ ITEM_SUBMIT_NEW_TABLE_TITLE }}" value="V" />
+						</td>
+						<td class="builder-input-data">
+							<button class="new-column-button table-menu-item" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}">+</button>
+						</td>
 						<td></td>
 					</tr>
 				</table>
-				<input class="table-edit-menu-item" type="submit" name="submit" title="{{ ITEM_SUBMIT_NEW_TABLE_TITLE }}" value="V" />
 			</form>
 		</div>
 	</body>

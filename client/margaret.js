@@ -635,6 +635,7 @@ class MargaretGrip {
 
 		currentName = inputs[0].name.replace(this.builderColumnRadioNameRegex, this.builderNewRadioName);
 		currentId = inputs[0].id.replace(this.builderColumnRadioIdRegex, this.builderNewRadioId);
+		typesRadio.className = "builder-input-data";
 		radioTextType.value = 0;
 		radioTextType.type = "radio";
 		radioTextType.name = currentName;
@@ -646,6 +647,7 @@ class MargaretGrip {
 
 		currentName = inputs[1].name.replace(this.builderColumnRadioNameRegex, this.builderNewRadioName);
 		currentId = inputs[1].id.replace(this.builderColumnRadioIdRegex, this.builderNewRadioId);
+		delRow.className = "builder-input-data";
 		radioDateType.value = 1;
 		radioDateType.type = "radio";
 		radioDateType.name = currentName;
@@ -656,6 +658,7 @@ class MargaretGrip {
 
 		currentName = inputs[2].name.replace(this.builderColumnRadioNameRegex, this.builderNewRadioName);
 		currentId = inputs[2].id.replace(this.builderColumnRadioIdRegex, this.builderNewRadioId);
+		rowData.className = "builder-input-data";
 		radioNumberType.value = 2;
 		radioNumberType.type = "radio";
 		radioNumberType.name = currentName;
@@ -664,7 +667,8 @@ class MargaretGrip {
 		radioNumberTypeLabel.innerText = labels[2].innerText;
 
 
-		delButton.className = "delete-button";
+		delButton.classList.add("delete-button");
+		delButton.classList.add("table-menu-item");
 		delButton.innerText = "X";
 		delButton.title = this.localeTitles["ITEM_DELETE_COLUMN_TITLE"];
 		delButton.addEventListener("click",event => this.builderDeleteColumn(event));

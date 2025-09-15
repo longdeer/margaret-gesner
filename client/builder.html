@@ -16,16 +16,22 @@
 				<table class="builder-table">
 					<colgroup>
 						<col style="width:10%">
-						<col style="width:1%">
-						<col style="width:89%;">
+						<col style="width:auto">
+						<col style="width:90%;">
 					</colgroup>
 					<tr>
-						<td><label for="new-table-alias">{{ NEW_TABLE_ALIAS }}</label></td>
-						<td><button class="clear-button" title="{{ ITEM_CANCEL_EDIT_TITLE }}">X</button></td>
-						<td><input type="text" name="new-table-alias" class="table-input" /></td>
+						<td class="builder-alias-data">
+							<label for="new-table-alias">{{ NEW_TABLE_ALIAS }}</label>
+						</td>
+						<td class="builder-input-data">
+							<button class="clear-button table-menu-item" title="{{ ITEM_CANCEL_EDIT_TITLE }}">X</button>
+						</td>
+						<td class="builder-input-data">
+							<input type="text" name="new-table-alias" class="table-input" />
+						</td>
 					</tr>
 					<tr>
-						<td>
+						<td class="builder-input-data">
 							<input type="radio" id="row-text-1" name="row-1-type" value="0" checked />
 							<label for="row-text-1">{{ RADIO_TEXT }}</label>
 							<input type="radio" id="row-date-1" name="row-1-type" value="1" />
@@ -33,16 +39,24 @@
 							<input type="radio" id="row-number-1" name="row-1-type" value="2" />
 							<label for="row-number-1">{{ RADIO_NUMBER }}</label>
 						</td>
-						<td><button class="delete-button" title="{{ ITEM_DELETE_COLUMN_TITLE }}">X</button></td>
-						<td><input type="text" name="new-table-row" class="table-input" placeholder="{{ RAW_PLACEHOLDER }}" /></td>
+						<td class="builder-input-data">
+							<button class="delete-button table-menu-item" title="{{ ITEM_DELETE_COLUMN_TITLE }}">X</button>
+						</td>
+						<td class="builder-input-data">
+							<input type="text" name="new-table-row" class="table-input" placeholder="{{ RAW_PLACEHOLDER }}" />
+						</td>
 					</tr>
 					<tr>
-						<td></td>
-						<td><button class="new-column-button" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}">+</button></td>
+						<td class="builder-input-data">
+							<input class="table-edit-submit-item" type="submit" name="submit" title="{{ ITEM_SUBMIT_NEW_TABLE_TITLE }}" value="V" />
+						</td>
+						<td class="builder-input-data">
+							<button class="new-column-button table-menu-item" title="{{ ITEM_NEW_TABLE_COLUMN_TITLE }}"><b>+</b>
+							</button>
+						</td>
 						<td></td>
 					</tr>
 				</table>
-				<input class="table-edit-menu-item" type="submit" name="submit" title="{{ ITEM_SUBMIT_NEW_TABLE_TITLE }}" value="V" />
 			</form>
 		</div>
 	</body>
