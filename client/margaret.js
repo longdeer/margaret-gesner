@@ -564,7 +564,12 @@ class MargaretGrip {
 		});
 
 
-		if(this.builderOriginalAlias === newTableAlias && !query.delColumns.length && !Object.keys(query.renamedColumns).length && !Object.keys(query.newColumns).length) {
+		if(
+			this.builderOriginalAlias === newTableAlias &&
+			(!query.delColumns.length || query.delColumns.length === this.builderOriginalColumnsCount) &&
+			!Object.keys(query.renamedColumns).length &&
+			!Object.keys(query.newColumns).length
+		) {
 
 			alert(this.localeTitles.ALERT_TABLE_NOT_MODFIED);
 			return
