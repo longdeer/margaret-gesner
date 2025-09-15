@@ -44,7 +44,7 @@ loggy = Logger(getenv("LOGGY_FILE"), getenv("APP_NAME"), getenv("LOGGY_LEVEL"))
 @app.route("/locale-titles")
 def get_locale_titles() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/locale-titles", loggy):
 		return json.dumps({
 
 			"ITEM_DELETE_TITLE": getenv("ITEM_DELETE_TITLE"),
@@ -83,7 +83,7 @@ def get_locale_titles() -> str :
 @app.route("/")
 async def index() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/", loggy):
 
 		tables = await get_structure(rsrc, loggy)
 		names = sorted(tables)
@@ -112,7 +112,7 @@ async def index() -> str :
 @app.route("/table-builder")
 def table_constructor() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/table-builder", loggy):
 		return render_template(
 
 			"builder.html",
@@ -135,7 +135,7 @@ def table_constructor() -> str :
 @app.route("/edit-<name>-<serial>")
 async def table_editor(name :str, serial :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/edit-{name}-{serial}", loggy):
 
 		content = await get_table_structure(name, rsrc, loggy)
 		alias = deserialize_alias(serial)
@@ -165,7 +165,7 @@ async def table_editor(name :str, serial :str) -> str :
 @app.route("/table-<name>-<serial>")
 async def table(name :str, serial :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/table-{name}-{serial}", loggy):
 
 		alias = deserialize_alias(serial)
 		# content will have structure:
@@ -203,7 +203,7 @@ async def table(name :str, serial :str) -> str :
 @app.route("/new-table", methods=[ "POST" ])
 async def new_table() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/new-table", loggy):
 
 		match (db_response := await create_table(request.get_json(), rsrc, loggy)):
 
@@ -218,7 +218,7 @@ async def new_table() -> str :
 @app.route("/upd-table", methods=[ "UPDATE" ])
 async def upd_table() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/upd-table", loggy):
 
 		match (db_response := await update_table(request.get_json(), rsrc, loggy)):
 
@@ -233,7 +233,7 @@ async def upd_table() -> str :
 @app.route("/del-table", methods=[ "DELETE" ])
 async def del_table() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/del-table", loggy):
 
 		match (db_response := await delete_table(request.get_json(), rsrc, loggy)):
 
@@ -248,7 +248,7 @@ async def del_table() -> str :
 @app.route("/add-row-<name>", methods=[ "POST" ])
 async def add_row(name :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/add-row-{name}", loggy):
 
 		match (db_response := await add_table_row(name, request.get_json(), rsrc, loggy)):
 
@@ -263,7 +263,7 @@ async def add_row(name :str) -> str :
 @app.route("/del-row-<name>", methods=[ "DELETE" ])
 async def del_row(name :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/del-row-{name}", loggy):
 
 		match (db_response := await delete_table_row(name, request.get_json(), rsrc, loggy)):
 
@@ -278,7 +278,7 @@ async def del_row(name :str) -> str :
 @app.route("/upd-row-<name>", methods=[ "UPDATE" ])
 async def upd_row(name :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/upd-row-{name}", loggy):
 
 		match (db_response := await update_table_row(name, request.get_json(), rsrc, loggy)):
 
