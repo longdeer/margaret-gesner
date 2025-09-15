@@ -50,15 +50,20 @@ async def get_structure(rsrc :str, loggy) -> Dict[str,str] :
 		loggy.debug(f"{dbname} connection established for {rsrc} in get_structure")
 
 
-		session.execute("SELECT * FROM %s"%getenv("DB_STRUCTURE_TABLE"))
+		dbquery = "SELECT * FROM %s"%getenv("DB_STRUCTURE_TABLE")
+		loggy.debug(f"{rsrc} query: {dbquery}")
+
+
+		session.execute(dbquery)
+		loggy.info(f"{rsrc} successfully quried structure table")
+
+
 		response = dict(session)
-
-
 		session.close()
 		connection.close()
 
 
-	except	Exception as E : loggy.error(f"{E.__class__.__name__}: {E}")
+	except	Exception as E : loggy.error(f"get_structure {E.__class__.__name__}: {E}")
 	return	response
 
 
@@ -69,6 +74,12 @@ async def get_structure(rsrc :str, loggy) -> Dict[str,str] :
 
 
 async def get_table_structure(table_name :str, rsrc :str, loggy) -> List[[str,int],] :
+
+	"""
+		table_name	- requested table name string;
+		rsrc		- request's ip address as string;
+		loggy		- Logger object (logging wrapper).
+	"""
 
 	response = list()
 
@@ -106,7 +117,7 @@ async def get_table_structure(table_name :str, rsrc :str, loggy) -> List[[str,in
 		connection.close()
 
 
-	except	Exception as E : loggy.error(f"{E.__class__.__name__}: {E}")
+	except	Exception as E : loggy.error(f"get_table_structure {E.__class__.__name__}: {E}")
 	return	response
 
 
@@ -116,11 +127,7 @@ async def get_table_structure(table_name :str, rsrc :str, loggy) -> List[[str,in
 
 
 
-async def get_table_content(table_name		:str,
-							table_alias:	str,
-							rsrc			:str,
-							loggy
-						)->	List[List[str|int],] :
+async def get_table_content(table_name :str, table_alias: str, rsrc :str, loggy) -> List[List[str|int],] :
 
 	"""
 		table_name	- requested table name string;
@@ -146,8 +153,6 @@ async def get_table_content(table_name		:str,
 
 
 		dbquery = "SELECT * FROM %s"%table_name
-
-
 		loggy.debug(f"{rsrc} query: {dbquery}")
 		session.execute(dbquery)
 
@@ -171,7 +176,7 @@ async def get_table_content(table_name		:str,
 		connection.close()
 
 
-	except	Exception as E : loggy.error(f"{E.__class__.__name__}: {E}")
+	except	Exception as E : loggy.error(f"get_table_content {E.__class__.__name__}: {E}")
 	return	response
 
 
@@ -181,7 +186,13 @@ async def get_table_content(table_name		:str,
 
 
 
-async def create_table(content :str, rsrc :str, loggy) -> None | str :
+async def create_table(content :Dict[str,str | Dict[str,str]], rsrc :str, loggy) -> None | str :
+
+	"""
+		content	- parsed json data for making a db request;
+		rsrc	- request's ip address as string;
+		loggy	- Logger object (logging wrapper).
+	"""
 
 	try:
 
@@ -192,12 +203,13 @@ async def create_table(content :str, rsrc :str, loggy) -> None | str :
 
 		for k,v in content["columns"].items():
 
+			# TODO: consider better column names sanitize
 			column_names.append(k.replace("-","_").replace(" ","_"))
 			column_types.append(COLUMN_TYPE[int(v)])
 
 
 		if	not column_names or not column_types or len(column_names) != len(column_types):
-			raise ValueError("Empty or inconsistent table data")
+			raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 
 		table_name = f"TABLE{datetime.now().timestamp()}".replace(".","D")
@@ -239,7 +251,7 @@ async def create_table(content :str, rsrc :str, loggy) -> None | str :
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
-		loggy.error(response)
+		loggy.error(f"create_table {response}")
 		return response
 
 
@@ -250,6 +262,12 @@ async def create_table(content :str, rsrc :str, loggy) -> None | str :
 
 
 async def delete_table(content :str, rsrc :str, loggy) -> None | str :
+
+	"""
+		content	- parsed json data for making a db request;
+		rsrc	- request's ip address as string;
+		loggy	- Logger object (logging wrapper).
+	"""
 
 	try:
 
@@ -292,7 +310,7 @@ async def delete_table(content :str, rsrc :str, loggy) -> None | str :
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
-		loggy.error(response)
+		loggy.error(f"delete_table {response}")
 		return response
 
 
@@ -302,7 +320,13 @@ async def delete_table(content :str, rsrc :str, loggy) -> None | str :
 
 
 
-async def update_table(content :str, rsrc :str, loggy):
+async def update_table(content :str, rsrc :str, loggy) -> None | str :
+
+	"""
+		content	- parsed json data for making a db request;
+		rsrc	- request's ip address as string;
+		loggy	- Logger object (logging wrapper).
+	"""
 
 	try:
 
@@ -315,7 +339,7 @@ async def update_table(content :str, rsrc :str, loggy):
 
 
 		if	current_alias == new_alias and not new_columns and not del_columns and not mv_columns:
-			raise ValueError("Empty or inconsistent table data")
+			raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 
 		dbname = getenv("DB_NAME")
@@ -356,7 +380,7 @@ async def update_table(content :str, rsrc :str, loggy):
 
 
 			if	not origin_names or not new_names or len(origin_names) != len(new_names):
-				raise ValueError("Empty or inconsistent table data")
+				raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 			try:
 
@@ -382,7 +406,7 @@ async def update_table(content :str, rsrc :str, loggy):
 
 
 			if	not column_names or not column_types or len(column_names) != len(column_types):
-				raise ValueError("Empty or inconsistent table data")
+				raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 			try:
 
@@ -416,7 +440,7 @@ async def update_table(content :str, rsrc :str, loggy):
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
-		loggy.error(response)
+		loggy.error(f"update_table {response}")
 		return response
 
 
@@ -427,6 +451,13 @@ async def update_table(content :str, rsrc :str, loggy):
 
 
 async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None | str :
+
+	"""
+		table_name	- requested table name string;
+		content		- parsed json data for making a db request;
+		rsrc		- request's ip address as string;
+		loggy		- Logger object (logging wrapper).
+	"""
 
 	try:
 
@@ -442,7 +473,7 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 
 
 		if	not columns or not data or len(columns) != len(data):
-			raise ValueError("Empty or inconsistent table data")
+			raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 
 		columns = ",".join(columns)
@@ -477,7 +508,7 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
-		loggy.error(response)
+		loggy.error(f"add_table_row {response}")
 		return response
 
 
@@ -487,7 +518,14 @@ async def add_table_row(table_name :str, content :str, rsrc :str, loggy) -> None
 
 
 
-async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
+async def delete_table_row(table_name :str, content :str, rsrc :str, loggy) -> None | str :
+
+	"""
+		table_name	- requested table name string;
+		content		- parsed json data for making a db request;
+		rsrc		- request's ip address as string;
+		loggy		- Logger object (logging wrapper).
+	"""
 
 	try:
 
@@ -503,7 +541,7 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 
 
 		if	not columns or not data or len(columns) != len(data):
-			raise ValueError("Empty or inconsistent table data")
+			raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 
 		condition = " AND ".join( f"{c}={d}" for c,d in zip(columns, data) )
@@ -539,7 +577,7 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
-		loggy.error(response)
+		loggy.error(f"delete_table_row {response}")
 		return response
 
 
@@ -549,7 +587,14 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy):
 
 
 
-async def update_table_row(table_name :str, content :str, rsrc :str, loggy):
+async def update_table_row(table_name :str, content :str, rsrc :str, loggy) -> None | str :
+
+	"""
+		table_name	- requested table name string;
+		content		- parsed json data for making a db request;
+		rsrc		- request's ip address as string;
+		loggy		- Logger object (logging wrapper).
+	"""
 
 	try:
 
@@ -578,7 +623,7 @@ async def update_table_row(table_name :str, content :str, rsrc :str, loggy):
 			len(origin_data) != len(update_data) or
 			all( data == "NULL" for data in update_data )
 
-		):	raise ValueError("Empty or inconsistent table data")
+		):	raise ValueError(getenv("ERROR_TABLE_DATA","Empty or inconsistent table data"))
 
 
 		setter = ",".join( f"{c}={d}" for c,d in zip(update_columns, update_data) )
@@ -615,9 +660,8 @@ async def update_table_row(table_name :str, content :str, rsrc :str, loggy):
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"
-		loggy.error(response)
+		loggy.error(f"update_table_row {response}")
 		return response
-
 
 
 
