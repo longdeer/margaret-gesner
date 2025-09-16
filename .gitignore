@@ -3,6 +3,7 @@ __pycache__
 *.sublime-workspace
 *.service
 *.loggy
+*.sql
 bin
 lib
 lib64

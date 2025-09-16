@@ -308,7 +308,7 @@ if	__name__ == "__main__":
 
 
 	loggy.info(f"Starting {APP_NAME}")
-	app.run(host=getenv("LISTEN_ADDRESS"), port=getenv("LISTEN_PORT"), debug=True)
+	app.run(host=getenv("LISTEN_ADDRESS"), port=getenv("LISTEN_PORT"))
 
 
 
