@@ -33,7 +33,7 @@ class MargaretGrip {
 			ALERT_NO_TABLE_NAME: "Table name not provided",
 			ALERT_NO_COLUMN_NAME: "Table columns not provided",
 			ALERT_IMPROPER_COLUMN_NAME: "Invalid column names are found",
-			ALERT_TABLE_NOT_MODFIED: "Table not modified",
+			ALERT_TABLE_NOT_MODIFIED: "Table not modified",
 			ALERT_NOT_ALLOWED: "Access denied",
 			CONFIRM_TABLE_NEW_ROW: "Add row",
 			CONFIRM_TABLE_DELETE_ROW: "Delete row",
@@ -578,7 +578,7 @@ class MargaretGrip {
 			!Object.keys(query.newColumns).length
 		) {
 
-			alert(this.localeTitles.ALERT_TABLE_NOT_MODFIED);
+			alert(this.localeTitles.ALERT_TABLE_NOT_MODIFIED);
 			return
 		}
 
