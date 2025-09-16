@@ -26,9 +26,10 @@ from	dotenv				import load_dotenv
 
 
 load_dotenv()
+APP_NAME = getenv("APP_NAME")
 app = Flask(
 
-	getenv("APP_NAME"),
+	APP_NAME,
 	static_folder=getenv("APP_STATIC_FOLDER"),
 	template_folder=getenv("APP_TEMPLATES_FOLDER")
 )
@@ -44,7 +45,7 @@ loggy = Logger(getenv("LOGGY_FILE"), getenv("APP_NAME"), getenv("LOGGY_LEVEL"))
 @app.route("/locale-titles")
 def get_locale_titles() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), "/locale-titles", loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/locale-titles", "DB_ACCESS_LIST", loggy):
 		return json.dumps({
 
 			"ITEM_DELETE_TITLE": getenv("ITEM_DELETE_TITLE"),
@@ -68,6 +69,7 @@ def get_locale_titles() -> str :
 			"ALERT_NO_COLUMN_NAME": getenv("ALERT_NO_COLUMN_NAME"),
 			"ALERT_IMPROPER_COLUMN_NAME": getenv("ALERT_IMPROPER_COLUMN_NAME"),
 			"ALERT_TABLE_NOT_MODFIED": getenv("ALERT_TABLE_NOT_MODFIED"),
+			"ALERT_NOT_ALLOWED": getenv("ALERT_NOT_ALLOWED"),
 			"CONFIRM_TABLE_NEW_ROW": getenv("CONFIRM_TABLE_NEW_ROW"),
 			"CONFIRM_TABLE_DELETE_ROW": getenv("CONFIRM_TABLE_DELETE_ROW"),
 			"CONFIRM_TABLE_UPDATE_ROW": getenv("CONFIRM_TABLE_UPDATE_ROW"),
@@ -75,7 +77,7 @@ def get_locale_titles() -> str :
 			"CONFIRM_DELETE_TABLE": getenv("CONFIRM_DELETE_TABLE"),
 			"CONFIRM_MODIFY_TABLE": getenv("CONFIRM_MODIFY_TABLE")
 		})
-	return	render_template("restricted.html")
+	return	render_template("restricted.html", title=getenv("ITEM_ERROR_TITLE"), text=getenv("ERROR_ACCESS_DENIED"))
 
 
 
@@ -83,7 +85,7 @@ def get_locale_titles() -> str :
 @app.route("/")
 async def index() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), "/", loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/", "DB_ACCESS_LIST", loggy):
 
 		tables = await get_structure(rsrc, loggy)
 		names = sorted(tables)
@@ -104,17 +106,18 @@ async def index() -> str :
 			ITEM_NEW_TABLE_TITLE=getenv("ITEM_NEW_TABLE_TITLE"),
 			ITEM_OPEN_TABLE_TITLE=getenv("ITEM_OPEN_TABLE_TITLE"),
 			CONFIRM_DELETE_TABLE=getenv("CONFIRM_DELETE_TABLE"),
-			ALERT_UNHANDLED_STATUS=getenv("ALERT_UNHANDLED_STATUS")
+			ALERT_UNHANDLED_STATUS=getenv("ALERT_UNHANDLED_STATUS"),
+			ALERT_NOT_ALLOWED=getenv("ALERT_NOT_ALLOWED")
 		)
-	return	render_template("restricted.html")
+	return	render_template("restricted.html", title=getenv("ITEM_ERROR_TITLE"), text=getenv("ERROR_ACCESS_DENIED"))
 
 
 
 
 @app.route("/table-builder")
-def table_constructor() -> str :
+def table_builder() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), "/table-builder", loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/table-builder", "DB_BUILDER_LIST", loggy):
 		return render_template(
 
 			"builder.html",
@@ -131,7 +134,7 @@ def table_constructor() -> str :
 			ITEM_NEW_TABLE_COLUMN_TITLE=getenv("ITEM_NEW_TABLE_COLUMN_TITLE"),
 			ITEM_SUBMIT_NEW_TABLE_TITLE=getenv("ITEM_SUBMIT_NEW_TABLE_TITLE")
 		)
-	return	render_template("restricted.html")
+	return	render_template("restricted.html", title=getenv("ITEM_ERROR_TITLE"), text=getenv("ERROR_ACCESS_DENIED"))
 
 
 
@@ -139,7 +142,7 @@ def table_constructor() -> str :
 @app.route("/edit-<name>-<serial>")
 async def table_editor(name :str, serial :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), f"/edit-{name}-{serial}", loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/edit-{name}-{serial}", "DB_EDITOR_LIST", loggy):
 
 		content = await get_table_structure(name, rsrc, loggy)
 		alias = deserialize_alias(serial)
@@ -163,7 +166,7 @@ async def table_editor(name :str, serial :str) -> str :
 			ITEM_NEW_TABLE_COLUMN_TITLE=getenv("ITEM_NEW_TABLE_COLUMN_TITLE"),
 			ITEM_SUBMIT_NEW_TABLE_TITLE=getenv("ITEM_SUBMIT_NEW_TABLE_TITLE")
 		)
-	return	render_template("restricted.html")
+	return	render_template("restricted.html", title=getenv("ITEM_ERROR_TITLE"), text=getenv("ERROR_ACCESS_DENIED"))
 
 
 
@@ -171,7 +174,7 @@ async def table_editor(name :str, serial :str) -> str :
 @app.route("/table-<name>-<serial>")
 async def table(name :str, serial :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), f"/table-{name}-{serial}", loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/table-{name}-{serial}", "DB_TABLE_ACCESS_LIST", loggy):
 
 		alias = deserialize_alias(serial)
 		# content will have structure:
@@ -202,7 +205,7 @@ async def table(name :str, serial :str) -> str :
 			ITEM_EDIT_ROW_TITLE=getenv("ITEM_EDIT_ROW_TITLE"),
 			ITEM_SORTING_TOGGLE_TITLE=getenv("ITEM_SORTING_TOGGLE_TITLE")
 		)
-	return	render_template("restricted.html")
+	return	render_template("restricted.html", title=getenv("ITEM_ERROR_TITLE"), text=getenv("ERROR_ACCESS_DENIED"))
 
 
 
@@ -210,7 +213,7 @@ async def table(name :str, serial :str) -> str :
 @app.route("/new-table", methods=[ "POST" ])
 async def new_table() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), "/new-table", loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/new-table", "DB_BUILDER_POST_LIST", loggy):
 
 		match (db_response := await create_table(request.get_json(), rsrc, loggy)):
 
@@ -225,7 +228,7 @@ async def new_table() -> str :
 @app.route("/upd-table", methods=[ "UPDATE" ])
 async def upd_table() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), "/upd-table", loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/upd-table", "DB_BUILDER_UPDATE_LIST", loggy):
 
 		match (db_response := await update_table(request.get_json(), rsrc, loggy)):
 
@@ -240,7 +243,7 @@ async def upd_table() -> str :
 @app.route("/del-table", methods=[ "DELETE" ])
 async def del_table() -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), "/del-table", loggy):
+	if	in_access_list((rsrc := request.remote_addr), "/del-table", "DB_BUILDER_DELETE_LIST", loggy):
 
 		match (db_response := await delete_table(request.get_json(), rsrc, loggy)):
 
@@ -255,24 +258,9 @@ async def del_table() -> str :
 @app.route("/add-row-<name>", methods=[ "POST" ])
 async def add_row(name :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), f"/add-row-{name}", loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/add-row-{name}", "DB_TABLE_POST_LIST", loggy):
 
 		match (db_response := await add_table_row(name, request.get_json(), rsrc, loggy)):
-
-			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
-			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
-
-	return	json.dumps({ "success": False }), 403, { "ContentType": "application/json" }
-
-
-
-
-@app.route("/del-row-<name>", methods=[ "DELETE" ])
-async def del_row(name :str) -> str :
-
-	if	in_access_list((rsrc := request.remote_addr), f"/del-row-{name}", loggy):
-
-		match (db_response := await delete_table_row(name, request.get_json(), rsrc, loggy)):
 
 			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
 			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
@@ -285,9 +273,24 @@ async def del_row(name :str) -> str :
 @app.route("/upd-row-<name>", methods=[ "UPDATE" ])
 async def upd_row(name :str) -> str :
 
-	if	in_access_list((rsrc := request.remote_addr), f"/upd-row-{name}", loggy):
+	if	in_access_list((rsrc := request.remote_addr), f"/upd-row-{name}", "DB_TABLE_UPDATE_LIST", loggy):
 
 		match (db_response := await update_table_row(name, request.get_json(), rsrc, loggy)):
+
+			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
+			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
+
+	return	json.dumps({ "success": False }), 403, { "ContentType": "application/json" }
+
+
+
+
+@app.route("/del-row-<name>", methods=[ "DELETE" ])
+async def del_row(name :str) -> str :
+
+	if	in_access_list((rsrc := request.remote_addr), f"/del-row-{name}", "DB_TABLE_DELETE_LIST", loggy):
+
+		match (db_response := await delete_table_row(name, request.get_json(), rsrc, loggy)):
 
 			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
 			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
@@ -301,7 +304,11 @@ async def upd_row(name :str) -> str :
 
 
 
-if	__name__ == "__main__" : app.run(host=getenv("LISTEN_ADDRESS"), port=getenv("LISTEN_PORT"), debug=True)
+if	__name__ == "__main__":
+
+
+	loggy.info(f"Starting {APP_NAME}")
+	app.run(host=getenv("LISTEN_ADDRESS"), port=getenv("LISTEN_PORT"), debug=True)
 
 
 

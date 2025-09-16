@@ -34,6 +34,7 @@ class MargaretGrip {
 			ALERT_NO_COLUMN_NAME: "Table columns not provided",
 			ALERT_IMPROPER_COLUMN_NAME: "Invalid column names are found",
 			ALERT_TABLE_NOT_MODFIED: "Table not modified",
+			ALERT_NOT_ALLOWED: "Access denied",
 			CONFIRM_TABLE_NEW_ROW: "Add row",
 			CONFIRM_TABLE_DELETE_ROW: "Delete row",
 			CONFIRM_TABLE_UPDATE_ROW: "Commit update",
@@ -309,6 +310,7 @@ class MargaretGrip {
 
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
+				case 403:	alert(this.localeTitles.ALERT_NOT_ALLOWED); break;
 				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
@@ -357,6 +359,7 @@ class MargaretGrip {
 					}	break;
 
 				case 500:	response.json().then(data => alert(data.reason)); break;
+				case 403:	alert(this.localeTitles.ALERT_NOT_ALLOWED); break;
 				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
@@ -421,6 +424,7 @@ class MargaretGrip {
 						break;
 
 					case 500:	response.json().then(data => alert(data.reason)); break;
+					case 403:	alert(this.localeTitles.ALERT_NOT_ALLOWED); break;
 					default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 
 				}	this.tableOriginRow = null
@@ -511,6 +515,7 @@ class MargaretGrip {
 
 				case 200:	location.href = "/"; break;
 				case 500:	response.json().then(data => alert(data.reason)); break;
+				case 403:	alert(this.localeTitles.ALERT_NOT_ALLOWED); break;
 				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
@@ -605,6 +610,7 @@ class MargaretGrip {
 
 				case 200:	location.href = "/"; break;
 				case 500:	response.json().then(data => alert(data.reason)); break;
+				case 403:	alert(this.localeTitles.ALERT_NOT_ALLOWED); break;
 				default:	alert(`${this.localeTitles.ALERT_UNHANDLED_STATUS} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))
@@ -727,7 +733,7 @@ class MargaretGrip {
 			if(column) column.style.backgroundColor = "rgb(255,255,255)"
 		},	5000)
 	}
-	static structureDeleteTable(event /* Event */, tableName /* String */, confirmString /* String */, alertString /* String */) {
+	static structureDeleteTable(event /* Event */, tableName /* String */, confirmString, alertString, accessString) {
 
 		event.preventDefault();
 
@@ -752,6 +758,7 @@ class MargaretGrip {
 
 				case 200:	location.reload(); break;
 				case 500:	response.json().then(data => alert(data.reason)); break;
+				case 403:	alert(accessString); break;
 				default:	alert(`${alertString} ${response.status}`); break;
 			}})
 		.catch(E => alert(E))

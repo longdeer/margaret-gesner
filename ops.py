@@ -1,4 +1,5 @@
-from os import getenv
+import	json
+from	os		import getenv
 
 
 
@@ -7,9 +8,9 @@ from os import getenv
 
 
 
-def in_access_list(address :str, point :str, loggy) -> bool :
+def in_access_list(address :str, point :str, rule :str, loggy) -> bool :
 
-	accessable = address in getenv("DB_ACCESS_LIST")
+	accessable = address in json.loads(getenv(rule,"[]"))
 	loggy.debug("\"%s\" access %s for %s"%(point, "granted" if accessable else "denied", address))
 	return accessable
 
