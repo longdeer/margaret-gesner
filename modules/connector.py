@@ -320,7 +320,7 @@ async def delete_table(content :str, rsrc :str, loggy) -> None | str :
 
 
 
-async def update_table(content :str, rsrc :str, loggy) -> None | str :
+async def update_table(content :str, rsrc :str, loggy) -> None | List[str] | str :
 
 	"""
 		content	- parsed json data for making a db request;
@@ -330,6 +330,7 @@ async def update_table(content :str, rsrc :str, loggy) -> None | str :
 
 	try:
 
+		response = list()
 		table_name = content.get("name")
 		current_alias = content.get("origin")
 		new_alias = content.get("alias")
@@ -364,7 +365,11 @@ async def update_table(content :str, rsrc :str, loggy) -> None | str :
 				session.execute(dbquery)
 				loggy.info(f"{rsrc} dropped {table_name} columns {del_columns}")
 
-			except	Exception as E : loggy.error(f"Columns drop failed due to {E.__class__.__name__}: {E}")
+			except	Exception as E:
+
+				message = f"Columns drop failed due to {E.__class__.__name__}: {E}"
+				response.append(message)
+				loggy.error(message)
 
 
 		if	mv_columns:
@@ -390,7 +395,11 @@ async def update_table(content :str, rsrc :str, loggy) -> None | str :
 				session.execute(dbquery)
 				loggy.info(f"{rsrc} renamed {table_name} columns {mv_columns.values()}")
 
-			except	Exception as E : loggy.error(f"Columns rename failed due to {E.__class__.__name__}: {E}")
+			except	Exception as E:
+
+				message = f"Columns rename failed due to {E.__class__.__name__}: {E}"
+				response.append(message)
+				loggy.error(message)
 
 
 		if	new_columns:
@@ -416,7 +425,11 @@ async def update_table(content :str, rsrc :str, loggy) -> None | str :
 				session.execute(dbquery)
 				loggy.info(f"{rsrc} new {table_name} columns {column_names}")
 
-			except	Exception as E : loggy.error(f"Columns addition failed due to {E.__class__.__name__}: {E}")
+			except	Exception as E:
+
+				message = f"Columns addition failed due to {E.__class__.__name__}: {E}"
+				response.append(message)
+				loggy.error(message)
 
 
 		if	new_alias != current_alias:
@@ -429,7 +442,11 @@ async def update_table(content :str, rsrc :str, loggy) -> None | str :
 				session.execute(dbquery)
 				loggy.info(f"{rsrc} changed {table_name} alias to {new_alias}")
 
-			except	Exception as E : loggy.error(f"Alias rename failed due to {E.__class__.__name__}: {E}")
+			except	Exception as E:
+
+				message = f"Alias rename failed due to {E.__class__.__name__}: {E}"
+				response.append(message)
+				loggy.error(message)
 
 
 		connection.commit()
@@ -437,6 +454,7 @@ async def update_table(content :str, rsrc :str, loggy) -> None | str :
 		connection.close()
 
 
+		if	response : return response
 	except	Exception as E:
 
 		response = f"{E.__class__.__name__}: {E}"

@@ -35,6 +35,7 @@ class MargaretGrip {
 			ALERT_IMPROPER_COLUMN_NAME: "Invalid column names are found",
 			ALERT_TABLE_NOT_MODIFIED: "Table not modified",
 			ALERT_NOT_ALLOWED: "Access denied",
+			ALERT_PARTIAL_FAIL: "Some actions failed",
 			CONFIRM_TABLE_NEW_ROW: "Add row",
 			CONFIRM_TABLE_DELETE_ROW: "Delete row",
 			CONFIRM_TABLE_UPDATE_ROW: "Commit update",
@@ -129,7 +130,7 @@ class MargaretGrip {
 			header = this.tableContent.rows[0].cells[i];
 
 			// Adding to header haeder name without sorting button
-			this.tableHeaders.push(header.innerText.trim().slice(0,-1));
+			this.tableHeaders.push(header.innerText.slice(0,-1).trim());
 			this.tableHeadersTypes.push(header.className.split("-")[2]);
 
 			header.getElementsByClassName("table-header-sort")[0].addEventListener("click", event => this.tableSortColumn(event,i -2));
@@ -577,7 +578,6 @@ class MargaretGrip {
 			!Object.keys(query.renamedColumns).length &&
 			!Object.keys(query.newColumns).length
 		) {
-
 			alert(this.localeTitles.ALERT_TABLE_NOT_MODIFIED);
 			return
 		}
@@ -607,6 +607,12 @@ class MargaretGrip {
 		.then(response => {
 
 			switch(response.status) {
+
+				case 202:
+
+					response.json().then(data => alert(`${this.localeTitles.ALERT_PARTIAL_FAIL}: ${data.reason}`));
+					location.href = "/";
+					break;
 
 				case 200:	location.href = "/"; break;
 				case 500:	response.json().then(data => alert(data.reason)); break;

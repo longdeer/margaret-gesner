@@ -70,6 +70,7 @@ def get_locale_titles() -> str :
 			"ALERT_IMPROPER_COLUMN_NAME": getenv("ALERT_IMPROPER_COLUMN_NAME"),
 			"ALERT_TABLE_NOT_MODIFIED": getenv("ALERT_TABLE_NOT_MODIFIED"),
 			"ALERT_NOT_ALLOWED": getenv("ALERT_NOT_ALLOWED"),
+			"ALERT_PARTIAL_FAIL": getenv("ALERT_PARTIAL_FAIL"),
 			"CONFIRM_TABLE_NEW_ROW": getenv("CONFIRM_TABLE_NEW_ROW"),
 			"CONFIRM_TABLE_DELETE_ROW": getenv("CONFIRM_TABLE_DELETE_ROW"),
 			"CONFIRM_TABLE_UPDATE_ROW": getenv("CONFIRM_TABLE_UPDATE_ROW"),
@@ -233,6 +234,7 @@ async def upd_table() -> str :
 		match (db_response := await update_table(request.get_json(), rsrc, loggy)):
 
 			case None:	return json.dumps({ "success": True }), 200, { "ContentType": "application/json" }
+			case list():return json.dumps({ "success": True, "reason": "\n".join(db_response) }), 202, { "ContentType": "application/json" }
 			case _:		return json.dumps({ "success": False, "reason": db_response }), 500, { "ContentType": "application/json" }
 
 	return	json.dumps({ "success": False }), 403, { "ContentType": "application/json" }
