@@ -45,13 +45,23 @@ class MargaretGrip {
 		};
 
 
-		fetch("/locale-titles")
-		.then(response => {
+		if(!sessionStorage.getItem("localeTitles")) {
 
-			if(!response.status === 200) console.log(`fetching locale titles status ${response.status}`);
-			else response.json().then(data => Object.keys(data).forEach(key => this.localeTitles[key] = data[key]))
-		})
-		.catch(E => consle.log(E));
+			fetch("/locale-titles")
+			.then(response => {
+
+				if(!response.status === 200) console.log(`fetching locale titles status ${response.status}`);
+				else {
+
+					const titles = {};
+					response.json().then(data => Object.keys(data).forEach(key => titles[key] = data[key]));
+					sessionStorage.setItem("localeTitles", titles)
+				}
+			})
+			.catch(E => consle.log(E));
+		}
+		const titles = sessionStorage.getItem("localeTitles");
+		if(titles) Object.keys(titles).forEach(key => this.localeTitles[key] = titles[key]);
 
 
 		if(tableName) {
