@@ -744,10 +744,13 @@ class MargaretGrip {
 	builderMarkInvalid = (column) => {
 
 		column.style.backgroundColor = "rgb(255,0,0)";
-		setTimeout(() => {
+		(function fader(x) {
+			if(x <256) {
 
-			if(column) column.style.backgroundColor = "rgb(255,255,255)"
-		},	5000)
+				column.style.backgroundColor = `rgb(255,${x},${x})`;
+				setTimeout(() => fader(x +15),100)
+			}	else column.style.backgroundColor = "rgb(255,255,255)"
+		})(1)
 	}
 	static structureDeleteTable(event /* Event */, tableName /* String */, confirmString, alertString, accessString) {
 
