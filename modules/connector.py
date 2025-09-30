@@ -554,7 +554,7 @@ async def delete_table_row(table_name :str, content :str, rsrc :str, loggy) -> N
 		for k,v in content.items():
 
 			columns.append(k)
-			data.append(f"='{v}'" if v is not None else "IS NULL")
+			data.append(f"='{v}'" if v is not None else " IS NULL")
 
 
 		if	not columns or not data or len(columns) != len(data):
